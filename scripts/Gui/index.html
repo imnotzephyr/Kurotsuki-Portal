@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VicHopMacro UI</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+</head>
+<body>
+  <div class="container">
+  <div class="titlebar">
+    <div class="macrotitle" id="ahkTitleBar" onclick="ahk.Dragger.Func(this)">
+        <img src="../../images\Stinger.ico"
+        style="width: 16px; height: 16px; vertical-align: middle;">
+        <span>VicHopMacro</span>
+    </div>
+    <div class="window-controls">
+      <button class="minimizeButton" onclick="ahk.global.WinMinimize('A')">_</button>
+      <button class="closeButton" onclick="ahk.global.WinClose('A')">x</button>
+    </div>
+  </div>
+
+    <div class="tabs">
+      <button onclick="switchTab('main')" aria-label="Main tab" id="maintab">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-house-icon lucide-house">
+          <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+          <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        </svg>
+        Main
+      </button>
+
+      <button onclick="switchTab('setitngs')" aria-label="Settings tab" id="settingtab">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-house-icon lucide-house">
+          <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+          <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        </svg>
+        Settings
+      </button>
+
+
+
+      <button onclick="switchTab('account')" aria-label="Account tab" id="accounttab">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 21a8 8 0 0 1 16 0"/>
+        </svg>
+        Account
+      </button>
+
+    </div>
+
+    <div id="main" class="tab active">
+      <label>Discord ID:</label>
+      <input type="text" id="discordID" placeholder="1234567890">
+
+      <label>MoveSpeed:</label>
+      <input type="text" id="MoveSpeed" placeholder="33.35">
+
+      <label>Account Mode:</label>
+      <select id="AccountMode">
+        <option value="Searcher">Searcher</option>
+        <option value="Passive">Passive</option>
+        <option value="Main">Main</option>
+      </select>
+
+      <label>Instance Tag:</label>
+      <input type="text" id="InstanceTag" placeholder="searcher1">
+
+      <label><input type="checkbox" id="MainSoloHunt"> Main solo hunt (random servers between Searcher alerts)</label>
+
+      <div class="credits">
+        <span>Macro By: zephyr</span>
+      </div>
+    </div>
+
+
+    <div id="account" class="tab">
+      <h3>Discord</h3>
+
+      <label>Bot Token:</label>
+      <input type="text" id="BotToken" placeholder="Discord bot token">
+
+      <label>Status Channel ID:</label>
+      <input type="text" id="MainChannelID" placeholder="#bee-status">
+
+      <label>Listen ID (Searcher→Main):</label>
+      <input type="text" id="listenID" placeholder="#bee-searcher">
+
+      <label>Night Channel ID (Passive→Searcher):</label>
+      <input type="text" id="NightChannelID" placeholder="#bee-passive">
+
+      <label>Stinger Channel ID (kill shots):</label>
+      <input type="text" id="StingerChannelID" placeholder="#bee-stingers">
+
+      <hr>
+
+      <h3>Server</h3>
+
+      <label>VIP Server Link:</label>
+      <input type="text" id="VIPServerLink" placeholder="roblox://placeId=1537690962&privateServerLinkCode=...">
+
+      <label>Passive Mode (Searcher):</label>
+      <select id="PassiveMode">
+        <option value="Hybrid">Hybrid</option>
+        <option value="Listener">Listener</option>
+      </select>
+
+      <label>Main Count:</label>
+      <input type="number" id="MainCount" placeholder="1" min="1">
+
+      <label>Night Timeout (min):</label>
+      <input type="number" id="NightTimeout" placeholder="10" min="1">
+
+      <label>AFK Interval (sec):</label>
+      <input type="number" id="AntiAFKInterval" placeholder="30" min="1">
+
+      <label>Passive Label:</label>
+      <input type="text" id="PassiveLabel" placeholder="(optional)">
+
+      <label>Passive Resolution:</label>
+      <input type="text" id="PassiveRes" placeholder="1280x720">
+
+      <hr>
+
+      <h3>Updates</h3>
+
+      <label>GitHub Repo (auto-update):</label>
+      <input type="text" id="GitHubRepo" placeholder="imnotzephyr/Kurotsuki-Vichop">
+
+      <label>GitHub PAT (fine-grained, contents:read):</label>
+      <input type="password" id="GitHubPAT" placeholder="github_pat_...">
+
+      <label><input type="checkbox" id="AutoUpdate"> Auto-update on startup</label>
+    </div>
+
+    <hr>
+
+    <div class="footer">
+      <button onclick="ahkButtonClick('Start')">Start (F1)</button>
+      <button onclick="ahkButtonClick('Stop')">Stop (F2)</button>
+      <button onclick="onSaveClick(this)">Save All</button>
+    </div>
+  </div>
+
+<script src="script.js" ></script>
+</body>
+</html>

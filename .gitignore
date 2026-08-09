@@ -1,0 +1,11 @@
+testing.ahk
+test_*.ahk
+settings.ini
+ss.png
+serverlist.txt
+pendingserverlist.txt
+update_backup/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
