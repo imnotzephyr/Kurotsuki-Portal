@@ -114,7 +114,7 @@ DownloadRepoZip() {
         ; Invoke-WebRequest failures write to the error stream which PowerShell
         ; surfaces as exit code 1. RunWait ErrorLevel captures that.
         stdoutFile := A_Temp "\kp_update_stdout.log"
-        FileDelete stdoutFile
+        try FileDelete stdoutFile
 
         RunWait cmd, , "Hide", &stdoutFile
         FileAppend "DownloadRepoZip: RunWait ErrorLevel=" ErrorLevel "`n", logFile
@@ -238,7 +238,7 @@ CheckForUpdate() {
 
     ; Write debug info to a log file so we can see exactly what's happening.
     logFile := A_ScriptDir "\updater.log"
-    FileDelete logFile
+    try FileDelete logFile  ; no-op if file doesn't exist
     FileAppend "=== Update check " A_Now " ===`n", logFile
     FileAppend "localSHA=" (ReadLocalVersion()) "`n", logFile
 
