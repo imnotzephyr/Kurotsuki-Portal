@@ -112,7 +112,7 @@ DownloadRepoZip() {
         ; AHK v2: RunWait returns the exit code. No stdout capture (v2 removed
         ; the OutputVar parameter). We rely on exit code + zip file existence.
         ; For PS error output, check A_LastError (set by PowerShell on failure).
-        exitCode := RunWait(cmd, , "Hide")
+        exitCode := RunWait(cmd, , "CreateNoWindow")
         FileAppend "DownloadRepoZip: RunWait exit code=" exitCode "`n", logFile
         FileAppend "DownloadRepoZip: ahkZipPath exists after=" FileExist(ahkZipPath) "`n", logFile
         if FileExist(ahkZipPath)
@@ -131,10 +131,10 @@ ExtractZip(zipPath, destDir) {
         ; Use PowerShell's Expand-Archive
         ; Build the inner PowerShell command with single-quoted paths
         psCmd := "Expand-Archive -Path '" zipPath "' -DestinationPath '" destDir "' -Force"
-        ; Wrap in powershell.exe -Command "..." (single-quoted AHK string
-        ; can contain literal double quotes without escaping)
+        ; -WindowStyle Hidden inside PowerShell + CreateNoWindow on RunWait to fully
+        ; suppress the console window during extraction
         cmd := 'powershell.exe -WindowStyle Hidden -NoProfile -Command "' psCmd '"'
-        RunWait cmd, , "Hide"
+        RunWait cmd, , "CreateNoWindow"
 
         ; GitHub zipballs have a single top-level folder like "Kurotsuki-Portal-<sha>"
         ; Find that folder inside destDir
