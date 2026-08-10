@@ -60,13 +60,19 @@ FetchRemoteSHA() {
         wr.Send()
         wr.WaitForResponse()
 
-        if (wr.Status != "200")
+        status := wr.Status
+        if (status != "200") {
+            FileAppend "FetchRemoteSHA: HTTP " status " from " url "`n", A_ScriptDir "\updater.log"
             return ""
+        }
 
         response := wr.ResponseText
         parsed := JSON.parse(response)
-        return parsed.Has("sha") ? parsed["sha"] : ""
-    } catch {
+        sha := parsed.Has("sha") ? parsed["sha"] : ""
+        FileAppend "FetchRemoteSHA: got " StrLen(sha) " char SHA`n", A_ScriptDir "\updater.log"
+        return sha
+    } catch as e {
+        FileAppend "FetchRemoteSHA: exception " e.Message "`n", A_ScriptDir "\updater.log"
         return ""
     }
 }
@@ -86,6 +92,7 @@ DownloadRepoZip() {
     ; AHK's FileExist check which only accepts backslash separators.
     psZipPath := StrReplace(tempDir . "\Kurotsuki-Portal-update.zip", "\", "/")
     ahkZipPath := StrReplace(psZipPath, "/", "\")
+    logFile := A_ScriptDir "\updater.log"
 
     try {
         psCmd := "try { $ProgressPreference = 'SilentlyContinue';"
@@ -94,9 +101,43 @@ DownloadRepoZip() {
             . (GitHubPAT != "" ? ";'Authorization'='Bearer " Trim(GitHubPAT) "'" : "")
             . "}; exit 0 } catch { exit 1 }"
         cmd := 'powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -Command "' psCmd '"'
-        RunWait cmd, , "Hide"
+
+        FileAppend "DownloadRepoZip: cmd length=" StrLen(cmd) "`n", logFile
+        FileAppend "DownloadRepoZip: target=" ahkZipPath "`n", logFile
+
+        ; Delete any leftover from a previous failed run
+        if FileExist(ahkZipPath)
+            FileDelete ahkZipPath
+
+        ; RunWait with stdout/stderr capture to log file
+        stdoutFile := A_Temp "\kp_update_stdout.log"
+        stderrFile := A_Temp "\kp_update_stderr.log"
+        FileDelete stdoutFile
+        FileDelete stderrFile
+
+        RunWait cmd, , "Hide", &stdoutFile, &stderrFile
+        FileAppend "DownloadRepoZip: RunWait ErrorLevel=" ErrorLevel "`n", logFile
+        FileAppend "DownloadRepoZip: stdoutFile exists=" FileExist(stdoutFile) "`n", logFile
+        FileAppend "DownloadRepoZip: stderrFile exists=" FileExist(stderrFile) "`n", logFile
+
+        if FileExist(stdoutFile) {
+            content := FileRead(stdoutFile)
+            if StrLen(content)
+                FileAppend "DownloadRepoZip stdout: " content "`n", logFile
+            FileDelete stdoutFile
+        }
+        if FileExist(stderrFile) {
+            content := FileRead(stderrFile)
+            if StrLen(content)
+                FileAppend "DownloadRepoZip stderr: " content "`n", logFile
+            FileDelete stderrFile
+        }
+        FileAppend "DownloadRepoZip: ahkZipPath exists after=" FileExist(ahkZipPath) "`n", logFile
+        if FileExist(ahkZipPath)
+            FileAppend "DownloadRepoZip: ahkZipPath size=" FileGetSize(ahkZipPath) "`n", logFile
         return FileExist(ahkZipPath) ? ahkZipPath : ""
-    } catch {
+    } catch as e {
+        FileAppend "DownloadRepoZip: exception " e.Message "`n", logFile
         return ""
     }
 }
@@ -201,31 +242,48 @@ CheckForUpdate() {
     if (!AutoUpdate)
         return 0
 
+    ; Write debug info to a log file so we can see exactly what's happening.
+    logFile := A_ScriptDir "\updater.log"
+    FileDelete logFile
+    FileAppend "=== Update check " A_Now " ===`n", logFile
+    FileAppend "localSHA=" (ReadLocalVersion()) "`n", logFile
+
     localSHA := ReadLocalVersion()
     remoteSHA := FetchRemoteSHA()
+    FileAppend "remoteSHA=" remoteSHA "`n", logFile
 
     if (remoteSHA = "") {
-        PlayerStatus("Update check failed: could not fetch remote SHA (check network/PAT)", "0xff5e00", , false, , false)
+        FileAppend "FAIL: remoteSHA is empty`n", logFile
+        PlayerStatus("Update check failed: could not fetch remote SHA (check network/PAT) -- see " logFile, "0xff5e00", , false, , false)
         return 0
     }
 
-    if (localSHA = remoteSHA)
-        return 0  ; up to date
+    if (localSHA = remoteSHA) {
+        FileAppend "UP TO DATE`n", logFile
+        return 0
+    }
 
     if (localSHA = "") {
         ; First run / no version file - don't auto-update, just write the current SHA
         ; so the next launch knows it's current. This avoids surprise-overwriting
         ; a customized install on first run.
         WriteLocalVersion(remoteSHA)
+        FileAppend "First run - wrote remote SHA as local`n", logFile
         return 0
     }
 
     ; We have a local SHA and a different remote SHA - update available
-    PlayerStatus("Update available: downloading latest build...", "0x1ABC9C", , false, , false)
+    FileAppend "Update available: local=" localSHA " remote=" remoteSHA "`n", logFile
+    PlayerStatus("Update available: downloading latest build... (log: " logFile ")", "0x1ABC9C", , false, , false)
 
     zipPath := DownloadRepoZip()
+    FileAppend "zipPath='" zipPath "'`n", logFile
+    FileAppend "A_Temp=" A_Temp "`n", logFile
+    FileAppend "Test: A_Temp\Kurotsuki-Portal-update.zip exists=" FileExist(A_Temp "\Kurotsuki-Portal-update.zip") "`n", logFile
+
     if (zipPath = "") {
-        PlayerStatus("Update download failed (check network/PAT)", "0xff5e00", , false, , false)
+        FileAppend "FAIL: download returned empty zipPath`n", logFile
+        PlayerStatus("Update download failed (check network/PAT) -- see " logFile, "0xff5e00", , false, , false)
         return 0
     }
 
@@ -234,16 +292,21 @@ CheckForUpdate() {
     DirCreate extractDir
 
     extractedRoot := ExtractZip(zipPath, extractDir)
-    if (extractedRoot = "")
-        return 0  ; extraction failed
+    if (extractedRoot = "") {
+        FileAppend "FAIL: extraction returned empty`n", logFile
+        PlayerStatus("Update extraction failed -- see " logFile, "0xff5e00", , false, , false)
+        return 0
+    }
 
     if (ApplyUpdate(extractedRoot, remoteSHA)) {
         ; Update applied successfully -- but DON'T reload mid-session.
         ; The new code will take effect on the next manual restart.
         ; Reloading mid-hunt would kill the session and lose progress.
-        PlayerStatus("Update downloaded! Restart the macro to apply.", "0x00a838", , false, , false)
+        FileAppend "Update downloaded and applied (restart to load)`n", logFile
+        PlayerStatus("Update downloaded! Restart the macro to apply. (log: " logFile ")", "0x00a838", , false, , false)
         return 0  ; return 0 so the macro continues normally with the old code
     }
 
+    FileAppend "FAIL: ApplyUpdate returned 0`n", logFile
     return 0
 }
