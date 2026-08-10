@@ -175,7 +175,7 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
     }
 
     NightSearchAttempts := 1
-    PlayerStatus("Night Detected!!", "0x000000", , false)
+    PlayerStatus("Night Detected", "0x000000", , false)
     Send "{" Zoomout " 15}"
 
     global ViciousField := "none"
@@ -452,7 +452,7 @@ Start_Passive() {
                 break
             }
             if NightDetection() {
-                PlayerStatus("Passive: Night detected! Alerting Searcher...", "0x000000", , false, , false)
+                PlayerStatus("Passive: Night Detected, alerting Searcher...", "0x000000", , false, , false)
                 myMsgID := SendPassiveAlert(VIPServerLink)
                 if !myMsgID {
                     PlayerStatus("Passive: Failed to send alert, retrying...", "0xff0000", , false, , false)

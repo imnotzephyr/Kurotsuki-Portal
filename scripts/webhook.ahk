@@ -2,8 +2,10 @@
  * Status embed via the Discord bot (VBE's discord.SendEmbed). Replaces the send-only webhook POST.
  * @param statusImage: true=capture screenshot, false=none, or a pBitmap to attach.
  * @param statusColor: RGB int, e.g. 0xe67e22
+ * @param statusTitle: bold clickable title (becomes a link if linkUrl is set)
+ * @param linkUrl: optional URL to make the statusTitle clickable in Discord
  */
-PlayerStatus(statusTitle, statusColor, statusDescription := "", Mentions := True, content := "", statusImage := True, statusTimestamp := True) {
+PlayerStatus(statusTitle, statusColor, statusDescription := "", Mentions := True, content := "", statusImage := True, statusTimestamp := True, linkUrl := "") {
     global bottoken, MainChannelID, discordID, InstanceTag
     pBitmap := 0
     if (statusImage == True) {
@@ -23,7 +25,8 @@ PlayerStatus(statusTitle, statusColor, statusDescription := "", Mentions := True
     prefix .= "] "
     msg := (statusDescription != "") ? (statusTitle " -- " statusDescription) : statusTitle
     msg := prefix msg
-    try discord.SendEmbed(msg, statusColor + 0, fullContent, pBitmap, MainChannelID)
+    ; Pass statusTitle as embed title (clickable if linkUrl is set); msg becomes the description.
+    try discord.SendEmbed(msg, statusColor + 0, fullContent, pBitmap, MainChannelID, 0, statusTitle, linkUrl)
     if (pBitmap)
         Gdip_DisposeImage(pBitmap)
 }

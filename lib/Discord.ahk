@@ -11,29 +11,31 @@ class discord
 {
 	static baseURL := "https://discord.com/api/v10/"
 
-	static SendEmbed(message, color:=3223350, content:="", pBitmap:=0, channel:="", replyID:=0)
+	static SendEmbed(message, color:=3223350, content:="", pBitmap:=0, channel:="", replyID:=0, title:="", url:="")
 	{
 		global MainChannelID
-		
+
 		if !channel
 			channel := MainChannelID
-		
+
 		if !channel
 			return ;silentfail
 
 		payload_json :=
 		(
-		'
+'
 		{
 			"content": "' content '",
 			"embeds": [{
+				' (title != "" ? ('"title": "' title '",') : '') '
+				' (url != "" ? ('"url": "' url '",') : '') '
 				"description": "' message '",
 				"color": "' color '"
 				' (pBitmap ? (',"image": {"url": "attachment://ss.png"}') : '') '
 			}]
 			' (replyID ? (',"allowed_mentions": {"parse": []}, "message_reference": {"message_id": "' replyID '", "fail_if_not_exists": false}') : '') '
 		}
-		'
+'
 		)
 
 		if pBitmap
