@@ -109,28 +109,22 @@ DownloadRepoZip() {
         if FileExist(ahkZipPath)
             FileDelete ahkZipPath
 
-        ; RunWait with stdout/stderr capture to log file
+        ; AHK v2 RunWait only accepts 4 params (Cmd, WorkDir, Options, &OutputVar).
+        ; PowerShell errors normally go to stderr (not captured here), but
+        ; Invoke-WebRequest failures write to the error stream which PowerShell
+        ; surfaces as exit code 1. RunWait ErrorLevel captures that.
         stdoutFile := A_Temp "\kp_update_stdout.log"
-        stderrFile := A_Temp "\kp_update_stderr.log"
         FileDelete stdoutFile
-        FileDelete stderrFile
 
-        RunWait cmd, , "Hide", &stdoutFile, &stderrFile
+        RunWait cmd, , "Hide", &stdoutFile
         FileAppend "DownloadRepoZip: RunWait ErrorLevel=" ErrorLevel "`n", logFile
         FileAppend "DownloadRepoZip: stdoutFile exists=" FileExist(stdoutFile) "`n", logFile
-        FileAppend "DownloadRepoZip: stderrFile exists=" FileExist(stderrFile) "`n", logFile
 
         if FileExist(stdoutFile) {
             content := FileRead(stdoutFile)
             if StrLen(content)
-                FileAppend "DownloadRepoZip stdout: " content "`n", logFile
+                FileAppend "DownloadRepoZip output: " content "`n", logFile
             FileDelete stdoutFile
-        }
-        if FileExist(stderrFile) {
-            content := FileRead(stderrFile)
-            if StrLen(content)
-                FileAppend "DownloadRepoZip stderr: " content "`n", logFile
-            FileDelete stderrFile
         }
         FileAppend "DownloadRepoZip: ahkZipPath exists after=" FileExist(ahkZipPath) "`n", logFile
         if FileExist(ahkZipPath)
