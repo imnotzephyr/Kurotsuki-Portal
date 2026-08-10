@@ -86,11 +86,12 @@ FetchRemoteSHA() {
 DownloadRepoZip() {
     global GitHubRepo, GitHubPAT
     url := "https://codeload.github.com/" GitHubRepo "/zip/refs/heads/main"
-    SplitPath A_Temp, &tempDir
-    ; Use forward slashes for the PS path (PS -Command eats backslashes as
-    ; escape chars inside double quotes). Keep a backslash variant for
-    ; AHK's FileExist check which only accepts backslash separators.
-    psZipPath := StrReplace(tempDir . "\Kurotsuki-Portal-update.zip", "\", "/")
+    ; A_Temp already returns the temp dir (with trailing backslash). Skip
+    ; SplitPath entirely -- it was returning just "Temp\" when given a
+    ; pure directory path with no filename portion, which broke the path.
+    ; PS -Command eats backslashes as escape chars inside double quotes,
+    ; so use forward slashes for the PS path. AHK's FileExist accepts both.
+    psZipPath := StrReplace(A_Temp . "Kurotsuki-Portal-update.zip", "\", "/")
     ahkZipPath := StrReplace(psZipPath, "/", "\")
     logFile := A_ScriptDir "\updater.log"
 
