@@ -6,12 +6,10 @@
 ; as a .zip, extracts to a temp directory, backs up the current install, and
 ; copies the new files over. The macro then restarts itself to load the new code.
 ;
-; Required global: GitHubRepo, GitHubPAT, AutoUpdate (read from settings.ini)
 ; GitHubRepo defaults to "imnotzephyr/Kurotsuki-Portal" if not set.
 ; ============================================================================
 
 global GitHubRepo := IniRead(settingsFile, "Settings", "GitHubRepo", "imnotzephyr/Kurotsuki-Portal")
-global GitHubPAT  := IniRead(settingsFile, "Settings", "GitHubPAT", "")
 global AutoUpdate := Integer(IniRead(settingsFile, "Settings", "AutoUpdate", 1))
 
 ; Path to the version file (stores the last-applied commit SHA)
@@ -45,7 +43,6 @@ WriteLocalVersion(sha) {
 ; Query GitHub API for the latest commit SHA on the main branch.
 ; Returns the SHA string on success, "" on failure.
 FetchRemoteSHA() {
-    global GitHubRepo, GitHubPAT
     url := "https://api.github.com/repos/" GitHubRepo "/commits/main"
 
     try {
@@ -54,8 +51,6 @@ FetchRemoteSHA() {
         wr.Open("GET", url, 1)
         wr.SetRequestHeader("User-Agent", "VicHopMacro-Updater (AHK)")
         wr.SetRequestHeader("Accept", "application/vnd.github+json")
-        if (GitHubPAT != "")
-            wr.SetRequestHeader("Authorization", "Bearer " Trim(GitHubPAT))
         wr.SetTimeouts(0, 10000, 15000, 10000)
         wr.Send()
         wr.WaitForResponse()
@@ -84,7 +79,6 @@ FetchRemoteSHA() {
 ; silently for the user). PowerShell's Invoke-WebRequest -OutFile handles binary
 ; downloads cleanly. Returns the zip path on success, "" on failure.
 DownloadRepoZip() {
-    global GitHubRepo, GitHubPAT
     url := "https://codeload.github.com/" GitHubRepo "/zip/refs/heads/main"
     ; A_Temp already returns the temp dir (with trailing backslash). Skip
     ; SplitPath entirely -- it was returning just "Temp\" when given a
@@ -99,7 +93,6 @@ DownloadRepoZip() {
         psCmd := "try { $ProgressPreference = 'SilentlyContinue';"
             . " Invoke-WebRequest -Uri '" url "' -OutFile '" psZipPath "' -UseBasicParsing"
             . " -Headers @{'User-Agent'='VicHopMacro-Updater (AHK)'"
-            . (GitHubPAT != "" ? ";'Authorization'='Bearer " Trim(GitHubPAT) "'" : "")
             . "}; exit 0 } catch { exit 1 }"
         cmd := 'powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -Command "' psCmd '"'
 
@@ -237,7 +230,7 @@ CheckForUpdate() {
 
     if (remoteSHA = "") {
         FileAppend "FAIL: remoteSHA is empty`n", logFile
-        PlayerStatus("Update check failed: could not fetch remote SHA (check network/PAT) -- see " logFile, "0xff5e00", , false, , false)
+        PlayerStatus("Update check failed: could not fetch remote SHA (check repo name + network) -- see " logFile, "0xff5e00", , false, , false)
         return 0
     }
 
@@ -266,7 +259,7 @@ CheckForUpdate() {
 
     if (zipPath = "") {
         FileAppend "FAIL: download returned empty zipPath`n", logFile
-        PlayerStatus("Update download failed (check network/PAT) -- see " logFile, "0xff5e00", , false, , false)
+        PlayerStatus("Update download failed (check " logFile ") -- see " logFile, "0xff5e00", , false, , false)
         return 0
     }
 

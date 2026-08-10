@@ -151,10 +151,7 @@ SendSettings(){
         IniWrite("", settingsFile, "Settings", "PassiveLabel")
         IniWrite("1280x720", settingsFile, "Settings", "PassiveRes")
         IniWrite("", settingsFile, "Settings", "InstanceTag")
-
-        ; Auto-update (Kurotsuki-Vichop)
         IniWrite("imnotzephyr/Kurotsuki-Portal", settingsFile, "Settings", "GitHubRepo")
-        IniWrite("", settingsFile, "Settings", "GitHubPAT")
         IniWrite(1, settingsFile, "Settings", "AutoUpdate")
     }
 	
@@ -177,9 +174,7 @@ SendSettings(){
     , PassiveLabel:         IniRead(settingsFile, "Settings", "PassiveLabel", "")
     , PassiveRes:           IniRead(settingsFile, "Settings", "PassiveRes", "1280x720")
     , InstanceTag:          IniRead(settingsFile, "Settings", "InstanceTag", "")
-    ; Auto-update (Kurotsuki-Vichop)
     , GitHubRepo:           IniRead(settingsFile, "Settings", "GitHubRepo", "imnotzephyr/Kurotsuki-Portal")
-    , GitHubPAT:            IniRead(settingsFile, "Settings", "GitHubPAT", "")
     , AutoUpdate:           IniRead(settingsFile, "Settings", "AutoUpdate", 1)
     , InstanceTag:          IniRead(settingsFile, "Settings", "InstanceTag", "")
     , MainSoloHunt:         IniRead(settingsFile, "Settings", "MainSoloHunt", 1)

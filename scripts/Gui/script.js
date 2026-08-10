@@ -28,7 +28,6 @@ function onSaveClick() {
     PassiveLabel:          get('PassiveLabel'),
     PassiveRes:            get('PassiveRes'),
     GitHubRepo:            get('GitHubRepo'),
-    GitHubPAT:             get('GitHubPAT'),
     AutoUpdate:            getBool('AutoUpdate'),
     InstanceTag:           get('InstanceTag'),
     MainSoloHunt:          getBool('MainSoloHunt'),
@@ -52,7 +51,6 @@ function applySettings(a) {
   if (s.AccountMode)   document.getElementById('AccountMode').value   = s.AccountMode;
   if (s.PassiveMode)   document.getElementById('PassiveMode').value   = s.PassiveMode;
   document.getElementById('GitHubRepo').value       = s.GitHubRepo || 'imnotzephyr/Kurotsuki-Portal';
-  document.getElementById('GitHubPAT').value        = s.GitHubPAT || '';
   document.getElementById('AutoUpdate').checked     = s.AutoUpdate === undefined ? true : !!+s.AutoUpdate;
   document.getElementById('InstanceTag').value        = s.InstanceTag || '';
   document.getElementById('MainSoloHunt').checked     = s.MainSoloHunt === undefined ? true : !!+s.MainSoloHunt;

@@ -42,10 +42,10 @@
     </div>
 
     <div id="main" class="tab active">
-      <label>Discord ID:</label>
+      <label>Discord User ID:</label>
       <input type="text" id="discordID" placeholder="1234567890">
 
-      <label>MoveSpeed:</label>
+      <label>Movespeed:</label>
       <input type="text" id="MoveSpeed" placeholder="33.35">
 
       <label>Account Mode:</label>
@@ -75,14 +75,14 @@
       <label>Status Channel ID:</label>
       <input type="text" id="MainChannelID" placeholder="#bee-status">
 
-      <label>Listen ID (Searcher→Main):</label>
-      <input type="text" id="listenID" placeholder="#bee-searcher">
+      <label>Detected Vicious Channel ID:</label>
+      <input type="text" id="listenID" placeholder="#detected-vics">
 
-      <label>Night Channel ID (Passive→Searcher):</label>
-      <input type="text" id="NightChannelID" placeholder="#bee-passive">
+      <label>Night Servers Channel ID:</label>
+      <input type="text" id="NightChannelID" placeholder="#night-servers">
 
-      <label>Stinger Channel ID (kill shots):</label>
-      <input type="text" id="StingerChannelID" placeholder="#bee-stingers">
+      <label>Stinger Count Channel ID:</label>
+      <input type="text" id="StingerChannelID" placeholder="#stinger-count">
 
       <hr>
 
@@ -103,7 +103,7 @@
       <label>Night Timeout (min):</label>
       <input type="number" id="NightTimeout" placeholder="10" min="1">
 
-      <label>AFK Interval (sec):</label>
+      <label>Anti-AFK click interval:</label>
       <input type="number" id="AntiAFKInterval" placeholder="30" min="1">
 
       <label>Passive Label:</label>
@@ -117,23 +117,5 @@
       <h3>Updates</h3>
 
       <label>GitHub Repo (auto-update):</label>
-      <input type="text" id="GitHubRepo" placeholder="imnotzephyr/Kurotsuki-Vichop">
+      <input type="text" id="GitHubRepo" placeholder="imnotzephyr/Kurotsuki-Portal">
 
-      <label>GitHub PAT (fine-grained, contents:read):</label>
-      <input type="password" id="GitHubPAT" placeholder="github_pat_...">
-
-      <label><input type="checkbox" id="AutoUpdate"> Auto-update on startup</label>
-    </div>
-
-    <hr>
-
-    <div class="footer">
-      <button onclick="ahkButtonClick('Start')">Start (F1)</button>
-      <button onclick="ahkButtonClick('Stop')">Stop (F2)</button>
-      <button onclick="onSaveClick(this)">Save All</button>
-    </div>
-  </div>
-
-<script src="script.js" ></script>
-</body>
-</html>
