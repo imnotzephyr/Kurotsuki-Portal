@@ -81,20 +81,21 @@ DownloadRepoZip() {
     global GitHubRepo, GitHubPAT
     url := "https://codeload.github.com/" GitHubRepo "/zip/refs/heads/main"
     SplitPath A_Temp, &tempDir
-    ; PowerShell's -Command treats backslashes as escape characters inside
-    ; double quotes (C:\Users\... becomes C:Users\...). Use forward slashes
-    ; which PowerShell accepts on Windows.
-    zipPath := StrReplace(tempDir . "\Kurotsuki-Portal-update.zip", "\", "/")
+    ; Use forward slashes for the PS path (PS -Command eats backslashes as
+    ; escape chars inside double quotes). Keep a backslash variant for
+    ; AHK's FileExist check which only accepts backslash separators.
+    psZipPath := StrReplace(tempDir . "\Kurotsuki-Portal-update.zip", "\", "/")
+    ahkZipPath := StrReplace(psZipPath, "/", "\")
 
     try {
         psCmd := "try { $ProgressPreference = 'SilentlyContinue';"
-            . " Invoke-WebRequest -Uri '" url "' -OutFile '" zipPath "' -UseBasicParsing"
+            . " Invoke-WebRequest -Uri '" url "' -OutFile '" psZipPath "' -UseBasicParsing"
             . " -Headers @{'User-Agent'='VicHopMacro-Updater (AHK)'"
             . (GitHubPAT != "" ? ";'Authorization'='Bearer " Trim(GitHubPAT) "'" : "")
             . "}; exit 0 } catch { exit 1 }"
         cmd := 'powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -Command "' psCmd '"'
         RunWait cmd, , "Hide"
-        return FileExist(zipPath) ? zipPath : ""
+        return FileExist(ahkZipPath) ? ahkZipPath : ""
     } catch {
         return ""
     }
