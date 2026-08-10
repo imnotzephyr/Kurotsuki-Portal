@@ -1,9 +1,9 @@
 # :bee: BSS VicHopMacro
 
-![GitHub Repo stars](https://img.shields.io/github/stars/epicisgood/VicHopMacro?style=flat)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/epicisgood/VicHopMacro/total)
-![GitHub Created At](https://img.shields.io/github/created-at/epicisgood/VicHopMacro)
-![GitHub License](https://img.shields.io/github/license/epicisgood/VicHopMacro)
+![GitHub Repo stars](https://img.shields.io/github/stars/imnotzephyr/Kurotsuki-Portal?style=flat)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/imnotzephyr/Kurotsuki-Portal/total)
+![GitHub Created At](https://img.shields.io/github/created-at/imnotzephyr/Kurotsuki-Portal)
+![GitHub License](https://img.shields.io/github/license/imnotzephyr/Kurotsuki-Portal)
 
 A Bee Swarm Simulator macro designed to hop servers to find **Vicious Bees** - (**without passive alts or searchers**) — only your **main account**.
 
@@ -32,7 +32,7 @@ Before running the macro, install **AutoHotkey v2.0**:
 
 1. **Download the Macro**
 
-   * Visit the [latest release](https://github.com/epicisgood/VicHopMacro/releases/latest)
+   * Visit the [latest release](https://github.com/imnotzephyr/Kurotsuki-Portal/releases/latest)
    * Extract the ZIP file
 
 2. **Run the Macro**
@@ -96,8 +96,8 @@ The macro is mainly for **mid-to-endgame** players farming **stingers** for Star
 Need help extracting ZIPs or setting things up?
 
 * **Discord Server:** [link](https://discord.gg/QfU2tm2Nf4)
-* **Discord user:** [`_epic.`](https://discord.com/users/726162926851063919)
-* **GitHub:** [epicisgood/VicHopMacro](https://github.com/epicisgood/VicHopMacro)
+* **Discord user:** `zephyr`
+* **GitHub:** [imnotzephyr/Kurotsuki-Portal](https://github.com/imnotzephyr/Kurotsuki-Portal)
 * **Donate:** [Give me robux!](https://www.roblox.com/games/17723449397/Bee-Swarm-Vicious-Hop-Donation-Center#!/store)
 
 ---
