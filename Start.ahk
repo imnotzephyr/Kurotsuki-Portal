@@ -64,7 +64,7 @@ if (!FileExist(settingsFile)) {
     IniWrite(0, settingsFile, "Settings", "Clover")
 
     ; Auto-update (Kurotsuki-Vichop) defaults
-    IniWrite("imnotzephyr/Kurotsuki-Vichop", settingsFile, "Settings", "GitHubRepo")
+    IniWrite("imnotzephyr/Kurotsuki-Portal", settingsFile, "Settings", "GitHubRepo")
     IniWrite("", settingsFile, "Settings", "GitHubPAT")
     IniWrite(1, settingsFile, "Settings", "AutoUpdate")
     IniWrite(1, settingsFile, "Settings", "MainSoloHunt")
