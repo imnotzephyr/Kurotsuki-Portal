@@ -42,8 +42,6 @@ small_walk(tiles, MoveKey1, MoveKey2:=0)
 {
     movement := nm_Walk(tiles, MoveKey1, MoveKey2)
     nm_createWalk(movement)
-    KeyWait "F14", "D T5 L"
-    KeyWait "F14", "T20 L"
     nm_endWalk()
 
 }
@@ -175,10 +173,18 @@ nm_createWalk(movement, name:="", vars:="") ; this function generates the 'walk'
 
     try FileAppend A_Now " nm_createWalk: spawned pid=" exec.ProcessID " A_AhkPath=" A_AhkPath "`n", A_ScriptDir "\passive_debug.log"
 
+    ; Kill any previous walker before starting a new one. Without this, two
+    ; walkers could press conflicting keys simultaneously. Wait up to 5s for clean exit.
+    if (currentWalk.pid && currentWalk.pid != exec.ProcessID) {
+        try {
+            ProcessClose currentWalk.pid
+            WinWaitClose "ahk_class AutoHotkey ahk_pid " currentWalk.pid, , 5
+        }
+    }
+    try FileAppend A_Now " nm_createWalk: fire-and-forget spawn; pid=" exec.ProcessID " name=" name "`n", A_ScriptDir "\passive_debug.log"
     if WinWait("ahk_class AutoHotkey ahk_pid " exec.ProcessID, , 2) {
         DetectHiddenWindows 0
         currentWalk.pid := exec.ProcessID
-        try FileAppend A_Now " nm_createWalk: WinWait OK; pid=" exec.ProcessID " name=" name "`n", A_ScriptDir "\passive_debug.log"
     } else {
         DetectHiddenWindows 0
         try FileAppend A_Now " nm_createWalk: WinWait TIMEOUT after 2s; pid=" exec.ProcessID " name=" name " (walker failed to launch - check AHK v2 path, antivirus, or stdin script syntax)`n", A_ScriptDir "\passive_debug.log"
@@ -459,8 +465,6 @@ StartServer() {
     )
 
     nm_createWalk(movement)
-    KeyWait "F14", "D T5 L"
-    KeyWait "F14", "T20 L"
     nm_endWalk()
 
     current_hive := FindHiveSlot()
@@ -704,8 +708,6 @@ GoToRamp() {
     '
     )
     nm_createWalk(movement)
-    KeyWait "F14", "D T5 L"
-    KeyWait "F14", "T20 L"
     nm_endWalk()
 
 }
@@ -728,8 +730,6 @@ GoToRamp2() {
     '
     )
     nm_createWalk(movement)
-    KeyWait "F14", "D T5 L"
-    KeyWait "F14", "T20 L"
     nm_endWalk()
 }
 
@@ -907,8 +907,6 @@ AttackVic(field := '') {
         }
         nm_createWalk(movement)
         SetTimer(CheckPlayerDied, 250)
-        KeyWait "F14", "D T5 L"
-        KeyWait "F14", "T20 L"
         nm_endWalk()
         openChat()
         SetTimer(CheckPlayerDied, 0)
