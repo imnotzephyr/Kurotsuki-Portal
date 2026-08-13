@@ -173,10 +173,15 @@ nm_createWalk(movement, name:="", vars:="") ; this function generates the 'walk'
     exec.StdIn.Write(script)
     exec.StdIn.Close()
 
-	if WinWait("ahk_class AutoHotkey ahk_pid " exec.ProcessID, , 2) {
-		DetectHiddenWindows 0
-		currentWalk.pid := exec.ProcessID
-		
+    try FileAppend A_Now " nm_createWalk: spawned pid=" exec.ProcessID " A_AhkPath=" A_AhkPath "`n", A_ScriptDir "\passive_debug.log"
+
+    if WinWait("ahk_class AutoHotkey ahk_pid " exec.ProcessID, , 2) {
+        DetectHiddenWindows 0
+        currentWalk.pid := exec.ProcessID
+        try FileAppend A_Now " nm_createWalk: WinWait OK; pid=" exec.ProcessID " name=" name "`n", A_ScriptDir "\passive_debug.log"
+    } else {
+        try FileAppend A_Now " nm_createWalk: WinWait TIMEOUT after 2s; pid=" exec.ProcessID " name=" name " (walker failed to launch - check AHK v2 path, antivirus, or stdin script syntax)`n", A_ScriptDir "\passive_debug.log"
+    }
 	}
 	else {
 		DetectHiddenWindows 0
