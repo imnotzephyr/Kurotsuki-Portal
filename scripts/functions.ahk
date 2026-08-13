@@ -1223,11 +1223,6 @@ OCR_DetectField(pBitmap) {
 ; ============================================================================
 ViciousSpawnLocation() {
     global ViciousField
-    static lastVSL := 0
-    ; Throttle to once per 2s to avoid busy-looping OCR during timer ticks.
-    if (A_TickCount - lastVSL < 2000)
-        return ""
-    lastVSL := A_TickCount
 
     vsLog := A_ScriptDir "\vicious_debug.log"
     try FileDelete vsLog
