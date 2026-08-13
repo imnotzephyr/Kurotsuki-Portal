@@ -178,6 +178,13 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
     if (role = "Searcher" && IsSet(coordMsgID) && coordMsgID)
         SendSearcherJoined(coordMsgID)
 
+    ; Main: signal READY as soon as we successfully joined the server (NOT after NightDetection).
+    ; The Searcher needs to know we've joined so it can leave to free a slot. We were
+    ; previously signaling ready after NightDetection succeeded, which meant NightDetection
+    ; failures caused the Searcher to time out at 90s (no Main joined).
+    if (role = "Main" && IsSet(coordMsgID) && coordMsgID)
+        SendMainReady(coordMsgID)
+
     if (NightDetection() != true) {
         NightSearchAttempts += 1
         PlayerStatus("Searching For Night Servers. " NightSearchAttempts-1 "x", "0x1ABC9C", , false, , false)
@@ -193,19 +200,16 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
         return
     }
 
-    ; Main: ALWAYS signal ready (reply to the Searcher VB alert) so the Searcher detects >=1 join + leaves; then, if multi-Main, wait for MainCount ready before sweeping together.
-    if (role = "Main" && IsSet(coordMsgID) && coordMsgID) {
-        SendMainReady(coordMsgID)
-        if (MainCount > 1) {
-            PlayerStatus("Waiting for " MainCount " Mains to be ready...", "0x1F8B4C", , false, , false)
-            start := nowUnix()
-            while (nowUnix() - start < 90) {
-                if (CountMainReady(coordMsgID) >= MainCount) {
-                    PlayerStatus("All " MainCount " Mains ready!", "0x00a838", , false, , false)
-                    break
-                }
-                Sleep 2000
+    ; Main: if multi-Main, wait for MainCount ready before sweeping together.
+    if (role = "Main" && MainCount > 1) {
+        PlayerStatus("Waiting for " MainCount " Mains to be ready...", "0x1F8B4C", , false, , false)
+        start := nowUnix()
+        while (nowUnix() - start < 90) {
+            if (CountMainReady(coordMsgID) >= MainCount) {
+                PlayerStatus("All " MainCount " Mains ready!", "0x00a838", , false, , false)
+                break
             }
+            Sleep 2000
         }
     }
 
