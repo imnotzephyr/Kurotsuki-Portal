@@ -244,19 +244,6 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
     if (PepperChecked){
         PlayerStatus("Going to Pepper Patch.", "0x1F8B4C", , false, , false)
         PepperPatch()
-        ; Mid-walk OCR polling: check every 1.5s for a Vicious Bee.
-        ; Aborts the walk early if one spawns while we're walking.
-        loop {
-            Sleep 1500
-            ViciousSpawnLocation()
-            if (ViciousField == "pepper") {
-                try ProcessClose currentWalk.pid
-                try nm_endWalk()
-                break
-            }
-            if (ViciousField != "none" && ViciousField != "pepper")
-                break
-        }
         openChat()
         if LeaveServerEarly()
             return
@@ -279,17 +266,6 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
     if (MountainChecked){
         PlayerStatus("Going to Mountain Top Field.", "0x1F8B4C", , false, , false)
         MountainTop()
-        loop {
-            Sleep 1500
-            ViciousSpawnLocation()
-            if (ViciousField == "mountain") {
-                try ProcessClose currentWalk.pid
-                try nm_endWalk()
-                break
-            }
-            if (ViciousField != "none" && ViciousField != "mountain")
-                break
-        }
         openChat()
         if LeaveServerEarly()
             return
@@ -315,18 +291,6 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
                 return
             }
             Cactus()
-        }
-        ; Mid-walk polling for Cactus
-        loop {
-            Sleep 1500
-            ViciousSpawnLocation()
-            if (ViciousField == "cactus") {
-                try ProcessClose currentWalk.pid
-                try nm_endWalk()
-                break
-            }
-            if (ViciousField != "none" && ViciousField != "cactus")
-                break
         }
 
         openChat()
@@ -354,18 +318,6 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
             }
             Rose()
         }
-        ; Mid-walk polling for Rose
-        loop {
-            Sleep 1500
-            ViciousSpawnLocation()
-            if (ViciousField == "rose") {
-                try ProcessClose currentWalk.pid
-                try nm_endWalk()
-                break
-            }
-            if (ViciousField != "none" && ViciousField != "rose")
-                break
-        }
 
         openChat()
         if LeaveServerEarly()
@@ -388,18 +340,6 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
             return
         }
         Spider()
-        ; Mid-walk polling for Spider
-        loop {
-            Sleep 1500
-            ViciousSpawnLocation()
-            if (ViciousField == "spider") {
-                try ProcessClose currentWalk.pid
-                try nm_endWalk()
-                break
-            }
-            if (ViciousField != "none" && ViciousField != "spider")
-                break
-        }
         openChat()
         if LeaveServerEarly()
             return
@@ -421,18 +361,6 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
             return
         }
         Clover()
-        ; Mid-walk polling for Clover
-        loop {
-            Sleep 1500
-            ViciousSpawnLocation()
-            if (ViciousField == "clover") {
-                try ProcessClose currentWalk.pid
-                try nm_endWalk()
-                break
-            }
-            if (ViciousField != "none" && ViciousField != "clover")
-                break
-        }
         openChat()
         if LeaveServerEarly()
             return
