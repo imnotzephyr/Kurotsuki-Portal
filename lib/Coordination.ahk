@@ -426,10 +426,17 @@ SendStingerScreenshot()
 
 ; Clicks in a safe area of the Roblox client to prevent
 ; the ~20-minute Roblox idle disconnect.
+; Also sends a brief W keystroke — keystrokes always count as activity
+; even if the Roblox window is behind another window (clicks don't).
 PerformAntiAFK()
 {
     global LastActivity
     LastActivity := nowUnix()
     GetRobloxClientPos()
-    Click windowX + 350, windowY + GetYOffset() + 100
+    if (windowX && windowY) {
+        Click windowX + 350, windowY + GetYOffset() + 100
+        Send "{W down}"
+        Sleep 50
+        Send "{W up}"
+    }
 }
