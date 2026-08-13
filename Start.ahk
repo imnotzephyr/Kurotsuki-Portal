@@ -4,6 +4,16 @@
 SetWorkingDir A_ScriptDir
 KeyDelay := 40
 
+; Passive debug log: writes to A_ScriptDir\passive_debug.log so the next
+; time anti-AFK stops working, we can read the log instead of guessing.
+; Reset on each macro start so the log only shows the current session.
+passiveDebugLog := A_ScriptDir "\passive_debug.log"
+try FileDelete passiveDebugLog
+dbgLine(s) {
+    FileAppend A_Now " " s "`n", passiveDebugLog
+}
+dbgLine("macro started; pid=" DllCall("GetCurrentProcessId") " RobloxHwnd=" GetRobloxHWND())
+
 ; Default RobloxOpenTime = 20, BSSLoadTime = 5
 ; Incase you have a really slow pc and need more than 20 seconds to open roblox.
 RobloxOpenTime := 20 
@@ -516,11 +526,14 @@ Start_Passive() {
         lastAFK := nowUnix()
         loop {
             if (nowUnix() - lastAFK >= AntiAFKInterval) {
+                dbgLine("anti-afk firing; hwnd=" GetRobloxHWND())
                 PerformAntiAFK()
+                dbgLine("anti-afk done; hwnd=" GetRobloxHWND())
                 lastAFK := nowUnix()
             }
             if !GetRobloxHWND() {
                 PlayerStatus("Passive: Lost Roblox window, rejoining...", "0xff5e00", , false, , false)
+                dbgLine("lost roblox window; breaking inner loop")
                 break
             }
             if NightDetection() {
@@ -537,17 +550,21 @@ Start_Passive() {
                 ; Phase 1 (on-server): wait for the Searcher to signal "joined", then leave to free a slot for the Mains.
                 start := nowUnix()
                 joined := 0
+                dbgLine("phase 1: waiting for searcher to join; msgID=" myMsgID)
                 while (nowUnix() - start < timeout) {
                     if CheckSearcherJoined(myMsgID) {
                         joined := 1
                         break
                     }
                     if (nowUnix() - lastAFK >= AntiAFKInterval) {
+                        dbgLine("phase 1 anti-afk firing; hwnd=" GetRobloxHWND())
                         PerformAntiAFK()
                         lastAFK := nowUnix()
                     }
-                    if !GetRobloxHWND()
+                    if !GetRobloxHWND() {
+                        dbgLine("phase 1: lost roblox window; breaking both loops")
                         break 2
+                    }
                     Sleep 3000
                 }
                 if !joined {
@@ -557,21 +574,25 @@ Start_Passive() {
                     break
                 }
                 PlayerStatus("Passive: Searcher joined, leaving to free a slot...", "0x7F8C8D", , false, , false)
+                dbgLine("phase 1 ended; joined=" joined " elapsed=" (nowUnix() - start) "s")
                 leaveServer()
 
                 ; Phase 2 (off-server): wait for the Searcher "done" (all Mains left -> server empty -> night reset), then rejoin.
                 start := nowUnix()
                 done := 0
+                dbgLine("phase 2: waiting for searcher done; msgID=" myMsgID)
                 while (nowUnix() - start < timeout) {
                     if CheckPassiveDone(myMsgID) {
                         PlayerStatus("Passive: Cycle complete, rejoining...", "0x00a838", , false, , false)
                         done := 1
                         break
                     }
+                    dbgLine("phase 2 iteration; elapsed=" (nowUnix() - start) "s hwnd=" GetRobloxHWND() " lastAFK_ago=" (nowUnix() - lastAFK) "s")
                     Sleep 3000
                 }
                 if !done
                     PlayerStatus("Passive: done timeout, rejoining anyway...", "0xff5e00", , false, , false)
+                dbgLine("phase 2 ended; done=" done " elapsed=" (nowUnix() - start) "s")
                 Sleep 5000
                 break
             }

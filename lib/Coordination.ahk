@@ -315,9 +315,11 @@ LoadVIPServer(link)
         PlayerStatus("Passive: VIPServerLink not configured!", 0xff0000, , false, , false)
         return 0
     }
+    try FileAppend A_Now " LoadVIPServer: starting; link=" link "`n", A_ScriptDir "\passive_debug.log"
     normalized := NormalizeVIPLink(link)
     Run normalized
     PlayerStatus("Passive: Loading VIP server...", 0, , false, , false)
+    try FileAppend A_Now " LoadVIPServer: Run issued; waiting for load signal`n", A_ScriptDir "\passive_debug.log"
     loaded := 0
 
     loop 30
@@ -335,6 +337,7 @@ LoadVIPServer(link)
         if loaded
             break
     }
+    try FileAppend A_Now " LoadVIPServer: timeout reached; loaded=" loaded "`n", A_ScriptDir "\passive_debug.log"
     ; Lock Roblox to PassiveRes (default 1280x720). Centered horizontally; vertically centered when it fits,
     ; else anchored to the screen bottom so the night-ground region stays on-screen (low-RDP testing).
     try {
