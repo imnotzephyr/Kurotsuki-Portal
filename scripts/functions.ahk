@@ -180,13 +180,10 @@ nm_createWalk(movement, name:="", vars:="") ; this function generates the 'walk'
         currentWalk.pid := exec.ProcessID
         try FileAppend A_Now " nm_createWalk: WinWait OK; pid=" exec.ProcessID " name=" name "`n", A_ScriptDir "\passive_debug.log"
     } else {
+        DetectHiddenWindows 0
         try FileAppend A_Now " nm_createWalk: WinWait TIMEOUT after 2s; pid=" exec.ProcessID " name=" name " (walker failed to launch - check AHK v2 path, antivirus, or stdin script syntax)`n", A_ScriptDir "\passive_debug.log"
+        return 0
     }
-	}
-	else {
-		DetectHiddenWindows 0
-		return 0
-	}
 }
 
 
