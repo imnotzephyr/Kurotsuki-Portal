@@ -185,6 +185,16 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
     if (role = "Main" && IsSet(coordMsgID) && coordMsgID)
         SendMainReady(coordMsgID)
 
+    ; If we have a targetField from the Searcher alert, the VB exists at that field
+    ; regardless of whether night is still active. Go straight there.
+    if IsSet(targetField) && targetField != "" {
+        PlayerStatus("Going directly to " StrTitle(targetField) " (Searcher alert).", "0x1F8B4C", , false, , false)
+        global ViciousField := targetField
+        gotoField(targetField)
+        HuntVB(targetField)
+        return
+    }
+
     if (NightDetection() != true) {
         NightSearchAttempts += 1
         PlayerStatus("Searching For Night Servers. " NightSearchAttempts-1 "x", "0x1ABC9C", , false, , false)
@@ -211,15 +221,6 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
             }
             Sleep 2000
         }
-    }
-
-    ; If we have a target field (from Searcher alert), go directly there instead of full sweep
-    if IsSet(targetField) && targetField != "" {
-        PlayerStatus("Going directly to " StrTitle(targetField) " (Searcher alert).", "0x1F8B4C", , false, , false)
-        global ViciousField := targetField
-        gotoField(targetField)
-        HuntVB(targetField)
-        return
     }
 
     PepperChecked := IniRead(settingsFile, "Settings", "Pepper", 0)
