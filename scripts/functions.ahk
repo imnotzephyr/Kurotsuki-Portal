@@ -1217,55 +1217,9 @@ OCR_DetectField(pBitmap) {
 }
 
 ; ============================================================================
-; VB_DetectByColor: fast color-based VB detection.
-; VB notifications in BSS chat have:
-;   - Two yellow warning icons (R>220, G>180, B<80) at x≈30-41 and x≈380-391
-;   - Red text (R>200, G<80, B<80) for "Vicious Bee is attacking <player> in <field>!"
-;   - For Gifted VB: green/gold (R>200, G>200, B<80) "[Gifted]" label at x≈220, y≈75
-; Returns: "gifted" if Gifted variant, "regular" if normal VB, "" if no VB.
-; ============================================================================
-VB_DetectByColor(pBMScreen) {
-    static yellow := 0
-    static gifted := 0
-    static red := 0
-    yellow := 0
-    gifted := 0
-    red := 0
-    if !pBMScreen
-        return ""
-    W := 0, H := 0
-    Gdip_GetImageDimensions(pBMScreen, &W, &H)
-    loop H {
-        y := A_Index - 1
-        loop W {
-            x := A_Index - 1
-            pixel := Gdip_GetPixelColor(pBMScreen, x, y)
-            r := (pixel >> 16) & 0xFF
-            g := (pixel >> 8) & 0xFF
-            b := pixel & 0xFF
-            ; Yellow warning icon: R>220, G>180, B<80
-            if (r > 220 && g > 180 && b < 80)
-                yellow++
-            ; Green/gold Gifted label: R>200, G>200, B<80, NOT yellow range
-            else if (r > 200 && g > 200 && b < 80)
-                gifted++
-            ; Red text: R>200, G<80, B<80
-            if (r > 200 && g < 80 && b < 80)
-                red++
-        }
-    }
-    ; Decision: Gifted if green/gold > 30, regular VB if yellow > 100, else no VB
-    if (gifted > 30)
-        return "gifted"
-    if (yellow > 100)
-        return "regular"
-    return ""
-}
-
-; ============================================================================
 ; ViciousSpawnLocation: detects which field a Vicious Bee spawned in.
-; Uses fast color-based detection (100% accuracy on user's 13 screenshots).
-; OCR runs only when a VB is detected, to extract the field name.
+; Uses OCR for field detection (robust against UI scale changes).
+; Falls back to bitmap search if OCR fails.
 ; ============================================================================
 ViciousSpawnLocation() {
     global ViciousField
@@ -1279,22 +1233,15 @@ ViciousSpawnLocation() {
     pBMScreen := GetpBMScreen(windowX + windowWidth - 500, windowY + 175, 500, 100)
     vsLogLine("[VSL] Screen captured: " (pBMScreen ? "OK" : "FAILED"))
 
-    ; Fast color-based VB detection (skips OCR if no VB notification present)
-    vbType := VB_DetectByColor(pBMScreen)
-    if (vbType = "") {
-        vsLogLine("[VSL] No VB notification detected (color check)")
-        Gdip_DisposeImage(pBMScreen)
-        return 0
-    }
-    vsLogLine("[VSL] Color check detected VB type: " vbType)
+    ; Skip ViciousActive bitmap check -- it fails at this resolution.
+    ; Run OCR directly on the captured region.
+    vsLogLine("[VSL] Running OCR directly (no ViciousActive gate)...")
 
-    ; VB detected - now run OCR to get the field name
     ocrField := OCR_DetectField(pBMScreen)
     vsLogLine("[VSL] OCR result: " (ocrField != "" ? ocrField : "(none)"))
-
     if (ocrField != "") {
         global ViciousField := ocrField
-        if (vbType = "gifted") {
+        if (Gdip_ImageSearch(pBMScreen, bitmaps["GiftedVicious"], , , , , , 100, 0)){
             PlayerStatus("Gifted Vicious Bee was detected in " StrTitle(ViciousField) "!", "0x7004eb",,false)
             Gdip_DisposeImage(pBMScreen)
             return ocrField
@@ -1304,8 +1251,10 @@ ViciousSpawnLocation() {
         return ocrField
     }
 
-    ; OCR failed but color detection succeeded - VB is present, field unknown
-    vsLogLine("[VSL] OCR failed but color says " vbType " - using 'none' field")
+    vsLogLine("[VSL] OCR did not find a VB notification")
+
+    ; Bitmap fallback removed -- tolerance 100 causes false positives by
+    ; matching random pixels. OCR is now the sole detection method.
     Gdip_DisposeImage(pBMScreen)
     return 0
 }
