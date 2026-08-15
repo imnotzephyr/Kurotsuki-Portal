@@ -46,6 +46,7 @@ BeginDrag(*) {
 
 Start(*) {
     PlayerStatus("Starting " version " VicHopMacro by zephyr", "0xFFFF00", , false, , false)
+    dbgLine("Start: dispatcher; AccountMode=" (AccountMode ? AccountMode : "<empty>") " movespeed=" (IniRead(settingsFile, "Settings", "movespeed", "") ? "set" : "EMPTY"))
     if (IniRead(settingsFile, "Settings", "movespeed", "") == "") {
         PlayerStatus("ERROR: Add a valid movespeed", "0xff0000", , true, , false)
         MsgBox "Please provide a valid movespeed in settings!`nYou might of forgotten to save settings.", "Error", 0x40010
@@ -53,9 +54,9 @@ Start(*) {
     CloseRoblox()
     GetServerIds(2)
     switch AccountMode {
-        case "Searcher": Start_Searcher()
-        case "Passive":  Start_Passive()
-        default:         Start_Main()
+        case "Searcher": dbgLine("Start: dispatching to Start_Searcher"); Start_Searcher()
+        case "Passive":  dbgLine("Start: dispatching to Start_Passive");  Start_Passive()
+        default:         dbgLine("Start: dispatching to Start_Main (default)"); Start_Main()
     }
 }
 
