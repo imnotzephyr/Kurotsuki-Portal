@@ -12,7 +12,7 @@ try FileDelete passiveDebugLog
 dbgLine(s) {
     FileAppend A_Now " " s "`n", passiveDebugLog
 }
-dbgLine("macro started; pid=" DllCall("GetCurrentProcessId") " RobloxHwnd=" GetRobloxHWND())
+dbgLine("macro started; pid=" DllCall("GetCurrentProcessId") " RobloxHwnd=" GetRobloxHWND() " A_ScriptDir=" A_ScriptDir)
 
 ; Default RobloxOpenTime = 20, BSSLoadTime = 5
 ; Incase you have a really slow pc and need more than 20 seconds to open roblox.
