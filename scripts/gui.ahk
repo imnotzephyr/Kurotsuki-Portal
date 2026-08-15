@@ -54,9 +54,18 @@ Start(*) {
     CloseRoblox()
     GetServerIds(2)
     switch AccountMode {
-        case "Searcher": dbgLine("Start: dispatching to Start_Searcher"); Start_Searcher()
-        case "Passive":  dbgLine("Start: dispatching to Start_Passive");  Start_Passive()
-        default:         dbgLine("Start: dispatching to Start_Main (default)"); Start_Main()
+        case "Searcher": {
+            dbgLine("Start: dispatching to Start_Searcher")
+            Start_Searcher()
+        }
+        case "Passive": {
+            dbgLine("Start: dispatching to Start_Passive")
+            Start_Passive()
+        }
+        default: {
+            dbgLine("Start: dispatching to Start_Main (default)")
+            Start_Main()
+        }
     }
 }
 
