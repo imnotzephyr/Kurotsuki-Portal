@@ -1311,6 +1311,3 @@ VicSpawnedDetection(currentField, reset := true) { ; if we at cannon we dont nee
     return 1
 }
 
-
-}
-
