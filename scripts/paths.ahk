@@ -74,6 +74,8 @@ PepperPatch() {
     )
 
     nm_createWalk(movement)
+    KeyWait "F14", "D T5 L"
+    KeyWait "F14", "T120 L"
     nm_endWalk()
 }
 
@@ -102,6 +104,8 @@ PepperToCannon() {
     )
 
     nm_createWalk(movement)
+    KeyWait "F14", "D T5 L"
+    KeyWait "F14", "T120 L"
     nm_endWalk()
 
 }
@@ -127,6 +131,8 @@ MountainTop() {
     )
 
     nm_createWalk(movement)
+    KeyWait "F14", "D T5 L"
+    KeyWait "F14", "T20 L"
     nm_endWalk()
 }
 
@@ -170,6 +176,8 @@ MountainToCactus() {
     )
 
     nm_createWalk(movement)
+    KeyWait "F14", "D T5 L"
+    KeyWait "F14", "T120 L"
     nm_endWalk()
 }
 
@@ -203,6 +211,8 @@ CactusToRose() {
     )
 
     nm_createWalk(movement)
+    KeyWait "F14", "D T5 L"
+    KeyWait "F14", "T120 L"
     nm_endWalk()
 }
 Rose() {
@@ -243,6 +253,8 @@ Rose() {
     )
 
     nm_createWalk(movement)
+    KeyWait "F14", "D T5 L"
+    KeyWait "F14", "T120 L"
     nm_endWalk()
 }
 
@@ -285,6 +297,8 @@ Cactus() {
     )
 
     nm_createWalk(movement)
+    KeyWait "F14", "D T5 L"
+    KeyWait "F14", "T120 L"
     nm_endWalk()
 
 }
@@ -315,6 +329,8 @@ Spider(){
     )
 
     nm_createWalk(movement)
+    KeyWait "F14", "D T5 L"
+    KeyWait "F14", "T120 L"
     nm_endWalk()
 }
 
@@ -355,6 +371,8 @@ Clover(){
     )
 
     nm_createWalk(movement)
+    KeyWait "F14", "D T5 L"
+    KeyWait "F14", "T120 L"
     nm_endWalk()
 }
 
@@ -443,6 +461,8 @@ Samovar() {
     )
 
     nm_createWalk(movement)
+    KeyWait "F14", "D T5 L"
+    KeyWait "F14", "T120 L"
     nm_endWalk()
 }
 
@@ -517,6 +537,8 @@ feast() {
 )
 
     nm_createWalk(movement)
+    KeyWait "F14", "D T5 L"
+    KeyWait "F14", "T120 L"
     nm_endWalk()
 }
 
@@ -587,6 +609,8 @@ stockings() {
     '
 )
     nm_createWalk(movement)
+    KeyWait "F14", "D T5 L"
+    KeyWait "F14", "T120 L"
     nm_endWalk()
 }
 
@@ -656,6 +680,8 @@ Candles() {
     '
 )
     nm_createWalk(movement)
+    KeyWait "F14", "D T5 L"
+    KeyWait "F14", "T120 L"
     nm_endWalk()
 }
 
@@ -773,6 +799,8 @@ LidArt() {
         '
     )
     nm_createWalk(movement)
+    KeyWait "F14", "D T5 L"
+    KeyWait "F14", "T120 L"
     nm_endWalk()
 
 }
