@@ -442,19 +442,24 @@ Start_Searcher() {
 ; Passive: sit in a VIP server, watch for night, alert Searchers, wait for "joined" then leave (free a slot), wait for "done" (all Mains left, server empty, night reset) then rejoin.
 Start_Passive() {
     global VIPServerLink, NightChannelID, NightTimeout, AntiAFKInterval
+    dbgLine("Start_Passive: entered; VIPServerLink=" (VIPServerLink ? "<set>" : "<empty>") " NightChannelID=" (NightChannelID ? "<set>" : "<empty>") " AntiAFKInterval=" AntiAFKInterval)
     loop {
         if !VIPServerLink or !NightChannelID {
+            dbgLine("Start_Passive: config missing; VIPServerLink=" (VIPServerLink ? "set" : "EMPTY") " NightChannelID=" (NightChannelID ? "set" : "EMPTY"))
             PlayerStatus("Passive: Config missing! VIPServerLink + NightChannelID required.", "0xff0000", , false, , false)
             MsgBox "VIPServerLink and NightChannelID are required for Passive mode.", "Passive Error", "0x40010 T60"
             return
         }
 
         PlayerStatus("Passive: Joining VIP server...", "0x1F8B4C", , false, , false)
+        dbgLine("Start_Passive: calling LoadVIPServer")
         if !LoadVIPServer(VIPServerLink) {
+            dbgLine("Start_Passive: LoadVIPServer returned 0; retrying in 5s")
             PlayerStatus("Passive: Load failed, retrying in 5s...", "0xff5e00", , false, , false)
             Sleep 5000
             continue
         }
+        dbgLine("Start_Passive: LoadVIPServer returned success; entering inner loop")
 
         lastAFK := nowUnix()
         loop {
