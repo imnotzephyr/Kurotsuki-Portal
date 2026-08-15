@@ -1277,7 +1277,7 @@ HuntVB(field) {
 
 ; returns 1 if we need to break out of loop
 VicSpawnedDetection(currentField, reset := true) { ; if we at cannon we dont need to reset
-    global LastActivity
+    global AccountMode, LastActivity
     LastActivity := nowUnix()
     ViciousSpawnLocation()
     sleep 500
@@ -1287,7 +1287,15 @@ VicSpawnedDetection(currentField, reset := true) { ; if we at cannon we dont nee
     if (currentField == "none" && ViciousField == "pepper")
         return 0
 
+    ; Same field: Mains attack, Searchers alert Main from current field.
     if (ViciousField == currentField) {
+        HuntVB(ViciousField)
+        return 1
+    }
+
+    ; Different field. Searcher just shouts for a Main (no walk needed).
+    ; Main walks to the field itself.
+    if (AccountMode = "Searcher") {
         HuntVB(ViciousField)
         return 1
     }
@@ -1301,7 +1309,7 @@ VicSpawnedDetection(currentField, reset := true) { ; if we at cannon we dont nee
     gotoField(ViciousField)
     HuntVB(ViciousField)
     return 1
-
+}
 
 
 }
