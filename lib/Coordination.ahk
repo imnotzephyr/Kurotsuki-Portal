@@ -443,11 +443,10 @@ PerformAntiAFK()
             WinActivate hwnd
         Sleep 100
         Click windowX + 350, windowY + GetYOffset() + 100
-        ; Send a space keypress via ControlSend -- Roblox's anti-cheat blocks
-        ; regular Send (SendInput) when the game window is in fullscreen mode.
-        ; ControlSend uses WM_CHAR messages that target the window directly,
-        ; bypassing the input queue that Hyperion monitors.
-        if (hwnd)
-            ControlSend "{Space}", , "ahk_id " hwnd
+        ; Send a space keypress -- Roblox counts Space (jump) as player activity
+        ; even when the character is idle. This prevents the 20-min idle kick.
+        Send "{" SpaceKey " down}"
+        Sleep 50
+        Send "{" SpaceKey " up}"
     }
 }
