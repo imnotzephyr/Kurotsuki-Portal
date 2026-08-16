@@ -1243,6 +1243,18 @@ ViciousSpawnLocation() {
     vsLogLine("[VSL] OCR result: " (ocrField != "" ? ocrField : "(none)"))
     if (ocrField != "") {
         global ViciousField := ocrField
+        ; Bitmap verification: confirm the OCR result with the field's bitmap at
+        ; tolerance 50. The OCR reads the field name from the notification text,
+        ; but it's possible the OCR mis-reads or the text was partial. The
+        ; bitmap confirms a real VB notification for this field is on screen.
+        ; Tolerance 50 is wider than the default 30 to handle slight font
+        ; rendering differences between captures.
+        if (bitmaps["Viciousbee"].Has(ocrField)
+            && Gdip_ImageSearch(pBMScreen, bitmaps["Viciousbee"][ocrField], , , , , , 50)) {
+            vsLogLine("[VSL] Bitmap confirmed field: " ocrField)
+        } else {
+            vsLogLine("[VSL] Bitmap check did not confirm field (OCR-only result)")
+        }
         if (Gdip_ImageSearch(pBMScreen, bitmaps["GiftedVicious"], , , , , , 100, 0)){
             PlayerStatus("Gifted Vicious Bee was detected in " StrTitle(ViciousField) "!", "0x7004eb",,false)
             Gdip_DisposeImage(pBMScreen)
