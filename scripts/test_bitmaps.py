@@ -25,18 +25,42 @@ from PIL import Image, ImageChops
 sys.path.insert(0, r"C:\Users\e1hua\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages")
 
 
-def load_field_bitmaps(bitmaps_ahk_path):
-    """Parse images/bitmaps.ahk and return a dict of field -> PIL Image."""
+def load_bitmaps(bitmaps_ahk_path):
+    """Parse images/bitmaps.ahk and return a dict of name -> PIL Image.
+
+    Loads both Viciousbee[field] entries (field-specific) and standalone
+    bitmaps like VBWarning (yellow warning icon).
+    """
     src = Path(bitmaps_ahk_path).read_text(encoding="utf-8")
     bitmaps = {}
     # Match: bitmaps["Viciousbee"]["fieldname"] := Gdip_BitmapFromBase64("...")
-    pattern = re.compile(
+    field_pattern = re.compile(
         r'bitmaps\["Viciousbee"\]\["(\w+)"\]\s*:=\s*Gdip_BitmapFromBase64\("([^"]+)"'
     )
-    for m in pattern.finditer(src):
+    for m in field_pattern.finditer(src):
         field, b64 = m.group(1), m.group(2)
-        img = Image.open(BytesIO(base64.b64decode(b64))).convert("RGB")
-        bitmaps[field] = img
+        try:
+            img = Image.open(BytesIO(base64.b64decode(b64))).convert("RGB")
+            bitmaps[f"Viciousbee.{field}"] = img
+        except Exception:
+            pass
+    # Match: bitmaps["name"] := Gdip_BitmapFromBase64("...") (standalone)
+    # Skip ones that have a [ subscript (Map or field entries).
+    standalone_pattern = re.compile(
+        r'bitmaps\["(\w+)"\]\s*:=\s*Gdip_BitmapFromBase64\("([^"]+)"'
+    )
+    for m in standalone_pattern.finditer(src):
+        name, b64 = m.group(1), m.group(2)
+        # Skip if this is a field-bitmap entry (already loaded above)
+        if name == "Viciousbee":
+            continue
+        if name in bitmaps:
+            continue  # already loaded as field entry
+        try:
+            img = Image.open(BytesIO(base64.b64decode(b64))).convert("RGB")
+            bitmaps[name] = img
+        except Exception:
+            pass
     return bitmaps
 
 
@@ -128,9 +152,9 @@ def main():
         print(f"ERROR: bitmaps.ahk not found: {bm_path}")
         sys.exit(1)
 
-    bitmaps = load_field_bitmaps(bm_path)
+    bitmaps = load_bitmaps(bm_path)
     if not bitmaps:
-        print(f"ERROR: No Viciousbee bitmaps found in {bm_path}")
+        print(f"ERROR: No bitmaps found in {bm_path}")
         sys.exit(1)
 
     ss_img = Image.open(ss_path).convert("RGB")

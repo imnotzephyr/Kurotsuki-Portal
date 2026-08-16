@@ -1219,11 +1219,12 @@ OCR_DetectField(pBitmap) {
 }
 
 ; ============================================================================
-; ViciousSpawnLocation: detects which field a Vicious Bee spawned in.
-; Uses OCR for field detection (robust against UI scale changes).
-; Falls back to bitmap search if OCR fails.
+; ViciousSpawnLocation: detects whether a Vicious Bee notification is on screen.
+; Uses the yellow warning icon (⚠) which appears at both ends of every VB
+; notification. Field name is supplied by the caller (the field the macro
+; is currently walking/searching) -- the warning icon is field-agnostic.
 ; ============================================================================
-ViciousSpawnLocation() {
+ViciousSpawnLocation(currentField) {
     global ViciousField
 
     vsLog := A_ScriptDir "\vicious_debug.log"
@@ -1235,53 +1236,33 @@ ViciousSpawnLocation() {
     pBMScreen := GetpBMScreen(windowX + windowWidth - 500, windowY + 175, 500, 100)
     vsLogLine("[VSL] Screen captured: " (pBMScreen ? "OK" : "FAILED"))
 
-    ; Fast path: check for the yellow warning icon. This is field-agnostic —
-    ; it confirms a VB notification is on screen regardless of which field.
-    ; The warning icon (⚠) appears at both ends of every VB notification text.
+    ; Check for the yellow warning icon. Field-agnostic -- confirms a VB
+    ; notification is on screen regardless of which field spawned it.
     warningFound := Gdip_ImageSearch(pBMScreen, bitmaps["VBWarning"], , , , , , 50, 0)
     vsLogLine("[VSL] Warning icon check: " (warningFound ? "FOUND" : "not found"))
 
     if (!warningFound) {
-        ; No warning icon = no VB notification in chat. Skip OCR entirely.
         vsLogLine("[VSL] No warning icon -> no VB notification")
         Gdip_DisposeImage(pBMScreen)
         return 0
     }
 
-    ; Warning icon found. Run OCR to get the field name.
-    vsLogLine("[VSL] Running OCR to identify field...")
-    ocrField := OCR_DetectField(pBMScreen)
-    vsLogLine("[VSL] OCR result: " (ocrField != "" ? ocrField : "(none)"))
-    if (ocrField != "") {
-        global ViciousField := ocrField
-        ; Bitmap verification: confirm the OCR result with the field's bitmap at
-        ; tolerance 50. The OCR reads the field name from the notification text,
-        ; but it's possible the OCR mis-reads or the text was partial. The
-        ; bitmap confirms a real VB notification for this field is on screen.
-        ; Tolerance 50 is wider than the default 30 to handle slight font
-        ; rendering differences between captures.
-        if (bitmaps["Viciousbee"].Has(ocrField)
-            && Gdip_ImageSearch(pBMScreen, bitmaps["Viciousbee"][ocrField], , , , , , 50)) {
-            vsLogLine("[VSL] Bitmap confirmed field: " ocrField)
-        } else {
-            vsLogLine("[VSL] Bitmap check did not confirm field (OCR-only result)")
-        }
-        if (Gdip_ImageSearch(pBMScreen, bitmaps["GiftedVicious"], , , , , , 100, 0)){
-            PlayerStatus("Gifted Vicious Bee was detected in " StrTitle(ViciousField) "!", "0x7004eb",,false)
-            Gdip_DisposeImage(pBMScreen)
-            return ocrField
-        }
-        PlayerStatus("Vicious Bee was detected in " StrTitle(ViciousField) "!", "0x213fc4",,false,,true)
+    ; Warning icon found. The field is whatever the macro is currently walking.
+    if (currentField = "" || currentField = "none") {
+        vsLogLine("[VSL] Warning icon found but no current field provided")
         Gdip_DisposeImage(pBMScreen)
-        return ocrField
+        return 0
     }
 
-    ; Warning icon found but OCR couldn't read the field. The VB notification
-    ; is on screen but the field name is unclear (e.g., text scrolled out).
-    ; Return 0 to indicate no actionable detection.
-    vsLogLine("[VSL] Warning icon found but OCR failed to identify field")
+    global ViciousField := currentField
+    vsLogLine("[VSL] Detected VB in field: " currentField)
+    if (Gdip_ImageSearch(pBMScreen, bitmaps["GiftedVicious"], , , , , , 100, 0)) {
+        PlayerStatus("Gifted Vicious Bee was detected in " StrTitle(ViciousField) "!", "0x7004eb", , false)
+    } else {
+        PlayerStatus("Vicious Bee was detected in " StrTitle(ViciousField) "!", "0x213fc4", , false, , true)
+    }
     Gdip_DisposeImage(pBMScreen)
-    return 0
+    return currentField
 }
 
 ; Role-aware VB handler.
@@ -1302,7 +1283,7 @@ HuntVB(field) {
 VicSpawnedDetection(currentField, reset := true) { ; if we at cannon we dont need to reset
     global AccountMode, LastActivity
     LastActivity := nowUnix()
-    ViciousSpawnLocation()
+    ViciousSpawnLocation(currentField)
     sleep 500
     if (ViciousField == "none")
         return 0
