@@ -434,12 +434,6 @@ PerformAntiAFK()
     global LastActivity
     LastActivity := nowUnix()
     GetRobloxClientPos()
-    if (windowX && windowY) {
+    if (windowX && windowY)
         Click windowX + 350, windowY + GetYOffset() + 100
-        ; Send a space keypress -- Roblox counts Space (jump) as player activity
-        ; even when the character is idle. This prevents the 20-min idle kick.
-        Send "{" SpaceKey " down}"
-        Sleep 50
-        Send "{" SpaceKey " up}"
-    }
 }
