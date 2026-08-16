@@ -435,13 +435,6 @@ PerformAntiAFK()
     LastActivity := nowUnix()
     GetRobloxClientPos()
     if (windowX && windowY) {
-        ; Ensure Roblox is focused before sending keystrokes. Without focus,
-        ; Send "Space" goes to whatever window is on top (often our own GUI),
-        ; and the character never jumps.
-        hwnd := GetRobloxHWND()
-        if (hwnd)
-            WinActivate hwnd
-        Sleep 100
         Click windowX + 350, windowY + GetYOffset() + 100
         ; Send a space keypress -- Roblox counts Space (jump) as player activity
         ; even when the character is idle. This prevents the 20-min idle kick.
