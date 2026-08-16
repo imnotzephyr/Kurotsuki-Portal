@@ -1235,10 +1235,21 @@ ViciousSpawnLocation() {
     pBMScreen := GetpBMScreen(windowX + windowWidth - 500, windowY + 175, 500, 100)
     vsLogLine("[VSL] Screen captured: " (pBMScreen ? "OK" : "FAILED"))
 
-    ; Skip ViciousActive bitmap check -- it fails at this resolution.
-    ; Run OCR directly on the captured region.
-    vsLogLine("[VSL] Running OCR directly (no ViciousActive gate)...")
+    ; Fast path: check for the yellow warning icon. This is field-agnostic —
+    ; it confirms a VB notification is on screen regardless of which field.
+    ; The warning icon (⚠) appears at both ends of every VB notification text.
+    warningFound := Gdip_ImageSearch(pBMScreen, bitmaps["VBWarning"], , , , , , 50, 0)
+    vsLogLine("[VSL] Warning icon check: " (warningFound ? "FOUND" : "not found"))
 
+    if (!warningFound) {
+        ; No warning icon = no VB notification in chat. Skip OCR entirely.
+        vsLogLine("[VSL] No warning icon -> no VB notification")
+        Gdip_DisposeImage(pBMScreen)
+        return 0
+    }
+
+    ; Warning icon found. Run OCR to get the field name.
+    vsLogLine("[VSL] Running OCR to identify field...")
     ocrField := OCR_DetectField(pBMScreen)
     vsLogLine("[VSL] OCR result: " (ocrField != "" ? ocrField : "(none)"))
     if (ocrField != "") {
@@ -1265,10 +1276,10 @@ ViciousSpawnLocation() {
         return ocrField
     }
 
-    vsLogLine("[VSL] OCR did not find a VB notification")
-
-    ; Bitmap fallback removed -- tolerance 100 causes false positives by
-    ; matching random pixels. OCR is now the sole detection method.
+    ; Warning icon found but OCR couldn't read the field. The VB notification
+    ; is on screen but the field name is unclear (e.g., text scrolled out).
+    ; Return 0 to indicate no actionable detection.
+    vsLogLine("[VSL] Warning icon found but OCR failed to identify field")
     Gdip_DisposeImage(pBMScreen)
     return 0
 }
