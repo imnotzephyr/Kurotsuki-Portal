@@ -429,11 +429,18 @@ SendStingerScreenshot()
 
 ; Clicks in a safe area of the Roblox client to prevent
 ; the ~20-minute Roblox idle disconnect.
+; Uses viewport-relative coords (width/height-based) so it works on any
+; resolution or DPI setting — no hardcoded offsets that depend on one screen size.
 PerformAntiAFK()
 {
     global LastActivity
     LastActivity := nowUnix()
     GetRobloxClientPos()
-    if (windowX && windowY)
-        Click windowX + 350, windowY + GetYOffset() + 100
+    if (windowX && windowY && windowWidth > 0 && windowHeight > 0)
+    {
+        local hwnd := GetRobloxHWND()
+        WinActivate "ahk_id " hwnd  ; ensures clicks land on the right window, not a background process
+        Sleep 150                  ; give Windows time to focus before sending input
+        Click windowX + windowWidth // 2, windowY + windowHeight - 20  ; bottom-center of client area
+    }
 }

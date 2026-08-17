@@ -80,7 +80,7 @@ ResetMacro(*) {
 
 StopMacro(*) {
     PlayerStatus("Closed VicHopMacro", "0xff5e00", , false, , false)
-    SetTimer(ViciousSpawnLocation, 0)
+    SetTimer(() => ViciousSpawnLocation(), 0)
     Send "{" WKey " up}{" AKey " up}{" SKey " up}{" Dkey " up}{F14 up}"
     try Gdip_Shutdown(pToken)
     nm_endWalk()
