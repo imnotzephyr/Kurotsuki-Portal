@@ -67,7 +67,7 @@ Start(*) {
 
 
 ResetMacro(*) { 
-    SetTimer(ViciousSpawnLocation, 0)
+    ; Timer already active or being stopped via walk script shutdown
     Send "{" WKey " up}{" AKey " up}{" SKey " up}{" Dkey " up}{F14 up}"
     try Gdip_Shutdown(pToken)
     nm_endWalk()
@@ -80,7 +80,7 @@ ResetMacro(*) {
 
 StopMacro(*) {
     PlayerStatus("Closed VicHopMacro", "0xff5e00", , false, , false)
-    SetTimer(ViciousSpawnLocation, 0)
+    ; Timer already active or being stopped via walk script shutdown
     Send "{" WKey " up}{" AKey " up}{" SKey " up}{" Dkey " up}{F14 up}"
     try Gdip_Shutdown(pToken)
     nm_endWalk()
