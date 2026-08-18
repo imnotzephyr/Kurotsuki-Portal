@@ -428,8 +428,9 @@ SendStingerScreenshot()
 }
 
 ; Clicks in a safe area of the Roblox client to prevent
-; the ~20-minute Roblox idle disconnect. Uses multiple methods sequentially
-; because Roblox on RDP/windows may ignore certain input types even when active.
+; the ~20-minute Roblox idle disconnect. Uses SendMode "Event" (Natro-compatible)
+; which is specifically required for RDP sessions - AHK's default "Input" mode 
+; doesn't route through Remote Desktop properly, causing clicks to be silently dropped.
 PerformAntiAFK()
 {
     global LastActivity
@@ -437,38 +438,42 @@ PerformAntiAFK()
     
     local hwnd := GetRobloxHWND()
     if !hwnd || hwnd = 0 {
+        dbgLine("anti-afk skipped: no Roblox window found")
         return ; No Roblox window, can't anti-AFK
     }
     
     GetRobloxClientPos(hwnd)
     if (!windowX || !windowY || windowWidth <= 0 || windowHeight <= 0) {
+        dbgLine("anti-afk skipped: invalid client pos (X=" . windowX . " Y=" . windowY . ")")
         return ; Can't determine position, skip this tick
     }
     
     local centerX := windowX +	windowWidth // 2
     local centerY := windowY + windowHeight - 20
     
-    ; Try Method 1: ControlClick (client-relative, bypasses focus issues)
-    try ControlClick "X" . (windowWidth - 40) ",Y" . (windowHeight - 50), "ahk_id " hwnd
-   
-    ; If Roblox is still active after ControlClick, we're good
-    if WinActive("ahk_id " hwnd) {
-        return
-    }
+    dbgLine("anti-afk firing (RDP mode): hwnd=" . hwnd . " at (" . centerX . "," . centerY . ")")
     
-    ; Method 2: Explicit SendMode Input + MouseMove then LClick
-    SendMode "Input"  ; Most reliable input mode for Roblox
-    MouseMove centerX, centerY, 0  ; Instant move to center-bottom of window (no animation)
-    Sleep 50                       ; Brief delay to let mouse position register
-    Send "{LClick}"                ; Physical left-click send
+    ; Use Natro-compatible RDP setup: SendMode Event + visible mouse move
+    SendMode "Event"  ; Required for RDP - "Input" method gets silently dropped
+    
+    ; Visible cursor movement (speed=5) - instant moves often don't register through virtual displays
+    MouseMove centerX, centerY, 5
+    
+    Sleep 100  ; Give RDP compositor time to process cursor position
+    
+    ; Use explicit down/up sequence instead of {LClick} - more reliable through Remote Desktop
+    Send "{LClick down}{LClick up}"
     
     ; If focus was lost during the above...
-    if (!WinActive("Roblox")) {
+    if (!WinActive("Roblox") && hwnd) {
+        dbgLine("anti-afk: Roblox lost focus, retrying...")
         WinActivate "ahk_id " hwnd
-        Sleep 100
-        SendMode "Input"
-        MouseMove centerX, centerY, 0
         Sleep 50
-        Send "{LClick}"
+        SendMode "Event"
+        MouseMove centerX, centerY, 5
+        Sleep 100
+        Send "{LClick down}{LClick up}"
     }
+    
+    dbgLine("anti-afk completed")
 }
