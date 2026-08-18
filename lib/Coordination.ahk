@@ -428,19 +428,47 @@ SendStingerScreenshot()
 }
 
 ; Clicks in a safe area of the Roblox client to prevent
-; the ~20-minute Roblox idle disconnect.
-; Uses viewport-relative coords (width/height-based) so it works on any
-; resolution or DPI setting — no hardcoded offsets that depend on one screen size.
+; the ~20-minute Roblox idle disconnect. Uses multiple methods sequentially
+; because Roblox on RDP/windows may ignore certain input types even when active.
 PerformAntiAFK()
 {
     global LastActivity
     LastActivity := nowUnix()
-    GetRobloxClientPos()
-    if (windowX && windowY && windowWidth > 0 && windowHeight > 0)
-    {
-        local hwnd := GetRobloxHWND()
-        WinActivate "ahk_id " hwnd  ; ensures clicks land on the right window, not a background process
-        Sleep 150                  ; give Windows time to focus before sending input
-        Click windowX + windowWidth // 2, windowY + windowHeight - 20  ; bottom-center of client area
+    
+    local hwnd := GetRobloxHWND()
+    if !hwnd || hwnd = 0 {
+        return ; No Roblox window, can't anti-AFK
+    }
+    
+    GetRobloxClientPos(hwnd)
+    if (!windowX || !windowY || windowWidth <= 0 || windowHeight <= 0) {
+        return ; Can't determine position, skip this tick
+    }
+    
+    local centerX := windowX +	windowWidth // 2
+    local centerY := windowY + windowHeight - 20
+    
+    ; Try Method 1: ControlClick (client-relative, bypasses focus issues)
+    try ControlClick "X" . (windowWidth - 40) ",Y" . (windowHeight - 50), "ahk_id " hwnd
+   
+    ; If Roblox is still active after ControlClick, we're good
+    if WinActive("ahk_id " hwnd) {
+        return
+    }
+    
+    ; Method 2: Explicit SendMode Input + MouseMove then LClick
+    SendMode "Input"  ; Most reliable input mode for Roblox
+    MouseMove centerX, centerY, 0  ; Instant move to center-bottom of window (no animation)
+    Sleep 50                       ; Brief delay to let mouse position register
+    Send "{LClick}"                ; Physical left-click send
+    
+    ; If focus was lost during the above...
+    if (!WinActive("Roblox")) {
+        WinActivate "ahk_id " hwnd
+        Sleep 100
+        SendMode "Input"
+        MouseMove centerX, centerY, 0
+        Sleep 50
+        Send "{LClick}"
     }
 }
