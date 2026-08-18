@@ -1,26 +1,46 @@
 /***********************************************************
 * @description: Functions for automating the Roblox window  
-* @author SP
+* @author SP (modified by e1hua with RDP resilience)
 ***********************************************************/
 
-; Closes any open Roblox player windows.
-; Called before rejoining a server to ensure clean state.
+; Closes any open Roblox player windows. Called before rejoining servers.
 CloseRoblox() {
     try {
-        ; Close by process name (most reliable)
         ProcessClose("RobloxPlayerBeta.exe")
         Sleep 100
-        
-        ; Also close via window title if process exists  
         WinClose("ahk_exe RobloxPlayerBeta.exe")
     }
     catch TargetError {
-        ; Silently ignore if no Roblox windows found
+        Silent ignore if no window found
     }
 }
 
-; Updates global variables windowX, windowY, windowWidth, windowHeight
-; Optionally takes a known window handle to skip GetRobloxHWND call.
+; Activates the Roblox window and returns 1 on success, 0 if not found/fails.
+; Used by various functions to ensure Roblox is focused before sending input.
+ActivateRoblox() {
+    try {
+        local hwnd := GetRobloxHWND()
+        
+        ; Validate we have a valid Roblox window
+        if (!hwnd || hwnd = 0)
+            return 0
+        
+        ; Activate the window (critical for RDP: virtual displays need explicit focus)
+        WinActivate("ahk_id " . hwnd)
+        Sleep 150  ; Longer delay for RDP compositor to catch up
+        
+        ; Verify activation succeeded
+        if WinActive("ahk_id " . hwnd)
+            return 1
+        else
+            return 0
+    }
+    catch TargetError {
+        return 0
+    }
+}
+
+; Updates global variables windowX, windowY, windowWidth, windowHeight.
 ; Returns 1 on success, 0 if window not found or coords invalid (RDP edge case).
 GetRobloxClientPos(hwnd?) {
     global windowX, windowY, windowWidth, windowHeight
@@ -28,7 +48,7 @@ GetRobloxClientPos(hwnd?) {
     if !IsSet(hwnd)
         hwnd := GetRobloxHWND()
 
-    ; RDP resilience: validate hwnd first  
+    ; RDP resilience: validate window exists before querying  
     if (!hwnd || hwnd = 0 or !WinExist("ahk_id " . hwnd)) {
         return windowX := windowY := windowWidth := windowHeight := 0
     }
@@ -38,7 +58,7 @@ GetRobloxClientPos(hwnd?) {
         
         ; Validate dimensions (RDP sometimes returns 0 without erroring)
         if (!windowWidth or !windowHeight or windowWidth < 100 or windowHeight < 100) {
-            ; RDP workaround: try activation then retry  
+            ; RDP workaround: retry after activation  
             WinActivate("Roblox ahk_id " . hwnd)
             Sleep 75
             
@@ -56,7 +76,7 @@ GetRobloxClientPos(hwnd?) {
     }
 }
 
-; Returns: hWnd on success, 0 if window not found  
+; Returns hWnd on success, 0 if Roblox window not found.
 GetRobloxHWND() {
     if (hwnd := WinExist("Roblox ahk_exe RobloxPlayerBeta.exe"))
         return hwnd
@@ -74,8 +94,7 @@ GetRobloxHWND() {
     return 0
 }
 
-; Finds the y-offset of GUI elements in current Roblox window  
-; Used to adjust coordinates for different UI scales/resolutions  
+; Returns the window height for Roblox (used to adjust UI coordinates).
 GetRobloxUIYOffset(hwnd?) {
     if !IsSet(hwnd)
         hwnd := GetRobloxHWND()
