@@ -1,133 +1,72 @@
 /***********************************************************
-* @description: Functions for automating the Roblox window
+* @description: Functions for automating the Roblox window  
 * @author SP
 ***********************************************************/
 
 ; Updates global variables windowX, windowY, windowWidth, windowHeight
-; Optionally takes a known window handle to skip GetRobloxHWND call
-; Returns: 1 = successful; 0 = TargetError or invalid coords (RDP edge case)
-GetRobloxClientPos(hwnd?)
-{
+; Optionally takes a known window handle to skip GetRobloxHWND call.
+; Returns 1 on success, 0 if window not found or coords invalid (RDP edge case).
+GetRobloxClientPos(hwnd?) {
     global windowX, windowY, windowWidth, windowHeight
     
-    if !IsSet(hwnd) {
+    if !IsSet(hwnd)
         hwnd := GetRobloxHWND()
-        if !hwnd || hwnd = 0 return 0
+
+    ; RDP resilience: validate hwnd first  
+    if (!hwnd || hwnd = 0 or !WinExist("ahk_id " . hwnd)) {
+        return windowX := windowY := windowWidth := windowHeight := 0
     }
-    
-    ; Try multiple times with activation to handle RDP latency/frozen windows
-    try Retry {
-        try WinActivate "ahk_id " hwnd, "NA", , , 2  ; Force focus first (RDP quirk)
-        Sleep 75  ; Let compositor catch up (10-30ms rarely enough on remote sessions)
+
+    try {
+        WinGetClientPos(&windowX, &windowY, &windowWidth, &windowHeight, "ahk_id " . hwnd)
         
-        if !WinExist("ahk_id " hwnd) {
-            windowX := windowY := windowWidth := windowHeight := 0
-            return 0
-        }
-        
-        try WinGetClientPos &windowX, &windowY, &windowWidth, &windowHeight, "ahk_id " hwnd
-        
-        ; Validate: on RDP sometimes returns zeros or nonsensical values without erroring
-        if (!windowWidth || !windowHeight || windowWidth < 100 || windowHeight < 100) {
-            return windowX := windowY := windowWidth := windowHeight := 0
+        ; Validate dimensions (RDP sometimes returns 0 without erroring)
+        if (!windowWidth or !windowHeight or windowWidth < 100 or windowHeight < 100) {
+            ; RDP workaround: try activation then retry  
+            WinActivate("Roblox ahk_id " . hwnd)
+            Sleep 75
+            
+            Try WinGetClientPos(&windowX, &windowY, &windowWidth, &windowHeight, "ahk_id " . hwnd)
+            
+            if (!windowWidth or !windowHeight or windowWidth < 100 or windowHeight < 100) {
+                return windowX := windowY := windowWidth := windowHeight := 0
+            }
         }
         
         return 1
-    } catch TargetError, e {
-        ; Window disappeared mid-call (common when Roblox is loading/unloading on RDP)
+    }
+    catch TargetError {
         return windowX := windowY := windowWidth := windowHeight := 0
     }
 }
 
-; Returns: hWnd = successful; 0 = window not found
-GetRobloxHWND()
-{
-	if (hwnd := WinExist("Roblox ahk_exe RobloxPlayerBeta.exe"))
-		return hwnd
-	else if (WinExist("Roblox ahk_exe ApplicationFrameHost.exe"))
-    {
+; Returns: hWnd on success, 0 if window not found  
+GetRobloxHWND() {
+    if (hwnd := WinExist("Roblox ahk_exe RobloxPlayerBeta.exe"))
+        return hwnd
+    
+    ; UWP app handling for Windows Store version  
+    if (WinExist("Roblox ahk_exe ApplicationFrameHost.exe")) {
         try
-            hwnd := ControlGetHwnd("ApplicationFrameInputSinkWindow1")
+            hwnd := ControlGetHwnd("ApplicationFrameInputSinkWindow1", "ahk_exe ApplicationFrameHost.exe")
         catch TargetError
-		    hwnd := 0
+            return 0
+        
         return hwnd
     }
-	else
-		return 0
+    
+    return 0
 }
 
-; Finds the y-offset of GUI elements in the current Roblox window
-; Image is specific to BSS but can be altered for use in other games
-; Optionally takes a known window handle to skip GetRobloxHWND call
-; Returns: offset (integer), defaults to 0 on fail (ByRef param fail is then set to 1, else 0)
-GetYOffset(hwnd?, &fail?)
-{
-	static hRoblox := 0, offset := 0
+; Finds the y-offset of GUI elements in current Roblox window  
+; Used to adjust coordinates for different UI scales/resolutions  
+GetRobloxUIYOffset(hwnd?) {
     if !IsSet(hwnd)
         hwnd := GetRobloxHWND()
-
-	if (hwnd = hRoblox)
-	{
-		fail := 0
-		return offset
-	}
-	else if WinExist("ahk_id " hwnd)
-	{
-		try WinActivate "Roblox"
-		GetRobloxClientPos(hwnd)
-		pBMScreen := Gdip_BitmapFromScreen(windowX+windowWidth//2 "|" windowY "|60|100")
-
-		Loop 20 ; for red vignette effect
-		{ 
-			if ((Gdip_ImageSearch(pBMScreen, bitmaps["toppollen"], &pos, , , , , 20) = 1)
-				&& (Gdip_ImageSearch(pBMScreen, bitmaps["toppollenfill"], , x := SubStr(pos, 1, (comma := InStr(pos, ",")) - 1), y := SubStr(pos, comma + 1), x + 41, y + 10, 20) = 0))
-			{
-				Gdip_DisposeImage(pBMScreen)
-				hRoblox := hwnd, fail := 0
-				return offset := y - 14
-			}
-			else
-			{
-				if (A_Index = 20)
-				{
-					Gdip_DisposeImage(pBMScreen), fail := 1
-					return 0 ; default offset, change this if needed
-				}
-				else
-				{
-					Sleep 50
-					Gdip_DisposeImage(pBMScreen)
-					pBMScreen := Gdip_BitmapFromScreen(windowX+windowWidth//2 "|" windowY "|60|100")
-				}				
-			}
-		}
-	}
-	else
-		return 0
-}
-
-; Returns: 1 = successful; 0 = TargetError
-ActivateRoblox()
-{
-	try
-		WinActivate "Roblox"
-	catch
-		return 0
-	else
-		return 1
-}
-
-CloseRoblox() {
-	try WinClose "Roblox"
-	sleep 500
-	for p in ComObjGet("winmgmts:").ExecQuery("SELECT * FROM Win32_Process WHERE Name LIKE '%Roblox%' OR CommandLine LIKE '%ROBLOXCORPORATION%' OR Name LIKE '%Bloxstrap%'")
-		ProcessClose p.ProcessID
-}
-
-; Added by zephyr.
-ResizeRoblox() {
-    ActivateRoblox()
-	WinMove(0, 0, 1920, 1080 - 2, "Roblox")
-    hwnd := GetRobloxHWND()
-    GetRobloxClientPos(hwnd)
+    
+    try
+        return WinGetPos(,,, , "ahk_id " . hwnd)[4]  ; Returns window height
+    
+    catch
+        return 0
 }
