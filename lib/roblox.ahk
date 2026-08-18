@@ -3,6 +3,22 @@
 * @author SP
 ***********************************************************/
 
+; Closes any open Roblox player windows.
+; Called before rejoining a server to ensure clean state.
+CloseRoblox() {
+    try {
+        ; Close by process name (most reliable)
+        ProcessClose("RobloxPlayerBeta.exe")
+        Sleep 100
+        
+        ; Also close via window title if process exists  
+        WinClose("ahk_exe RobloxPlayerBeta.exe")
+    }
+    catch TargetError {
+        ; Silently ignore if no Roblox windows found
+    }
+}
+
 ; Updates global variables windowX, windowY, windowWidth, windowHeight
 ; Optionally takes a known window handle to skip GetRobloxHWND call.
 ; Returns 1 on success, 0 if window not found or coords invalid (RDP edge case).
