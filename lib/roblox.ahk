@@ -5,19 +5,38 @@
 
 ; Updates global variables windowX, windowY, windowWidth, windowHeight
 ; Optionally takes a known window handle to skip GetRobloxHWND call
-; Returns: 1 = successful; 0 = TargetError
+; Returns: 1 = successful; 0 = TargetError or invalid coords (RDP edge case)
 GetRobloxClientPos(hwnd?)
 {
     global windowX, windowY, windowWidth, windowHeight
-    if !IsSet(hwnd)
+    
+    if !IsSet(hwnd) {
         hwnd := GetRobloxHWND()
-
-    try
-        WinGetClientPos &windowX, &windowY, &windowWidth, &windowHeight, "ahk_id " hwnd
-    catch TargetError
-        return windowX := windowY := windowWidth := windowHeight := 0
-    else
+        if !hwnd || hwnd = 0 return 0
+    }
+    
+    ; Try multiple times with activation to handle RDP latency/frozen windows
+    try Retry {
+        try WinActivate "ahk_id " hwnd, "NA", , , 2  ; Force focus first (RDP quirk)
+        Sleep 75  ; Let compositor catch up (10-30ms rarely enough on remote sessions)
+        
+        if !WinExist("ahk_id " hwnd) {
+            windowX := windowY := windowWidth := windowHeight := 0
+            return 0
+        }
+        
+        try WinGetClientPos &windowX, &windowY, &windowWidth, &windowHeight, "ahk_id " hwnd
+        
+        ; Validate: on RDP sometimes returns zeros or nonsensical values without erroring
+        if (!windowWidth || !windowHeight || windowWidth < 100 || windowHeight < 100) {
+            return windowX := windowY := windowWidth := windowHeight := 0
+        }
+        
         return 1
+    } catch TargetError, e {
+        ; Window disappeared mid-call (common when Roblox is loading/unloading on RDP)
+        return windowX := windowY := windowWidth := windowHeight := 0
+    }
 }
 
 ; Returns: hWnd = successful; 0 = window not found
