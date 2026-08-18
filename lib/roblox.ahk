@@ -11,7 +11,7 @@ CloseRoblox() {
         WinClose("ahk_exe RobloxPlayerBeta.exe")
     }
     catch TargetError {
-        Silent ignore if no window found
+        ; Silently ignore if no window found
     }
 }
 
@@ -94,8 +94,9 @@ GetRobloxHWND() {
     return 0
 }
 
-; Returns the window height for Roblox (used to adjust UI coordinates).
-GetRobloxUIYOffset(hwnd?) {
+; Returns the Y-offset for Roblox (used to adjust UI coordinates).
+; Alias: GetYOffset() also works.
+GetYOffset(hwnd?) {
     if !IsSet(hwnd)
         hwnd := GetRobloxHWND()
     
@@ -104,4 +105,9 @@ GetRobloxUIYOffset(hwnd?) {
     
     catch
         return 0
+}
+
+; Backward compatibility alias
+GetRobloxUIYOffset(hwnd?) {
+    return GetYOffset(hwnd)
 }
