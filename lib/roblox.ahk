@@ -80,24 +80,26 @@ GetRobloxClientPos(hwnd?) {
     }
 
     try {
-        WinGetClientPos(&windowX, &windowY, &windowWidth, &windowHeight, "ahk_id " . hwnd)
-        
-        ; Validate dimensions (RDP sometimes returns 0 without erroring)
-        if (!windowWidth or !windowHeight or windowWidth < 100 or windowHeight < 100) {
-            ; RDP workaround: retry after activation  
-            WinActivate("Roblox ahk_id " . hwnd)
-            Sleep 75
-            
-            Try WinGetClientPos(&windowX, &windowY, &windowWidth, &windowHeight, "ahk_id " . hwnd)
+        ; Retry loop for RDP: up to 3 attempts, wait 200ms between tries (virtual display lag)
+        local retry := 0, success := False
+        while (retry < 3 && !success) {
+            WinGetClientPos(&windowX, &windowY, &windowWidth, &windowHeight, "ahk_id " . hwnd)
             
             if (!windowWidth or !windowHeight or windowWidth < 100 or windowHeight < 100) {
-                return windowX := windowY := windowWidth := windowHeight := 0
+                retry += 1
+                Sleep 200
+                continue
+            } else {
+                success := True
             }
         }
         
-        return 1
-    }
-    catch TargetError {
+        if (!success) {
+            dbgLine("anti-afk: " . retry . " tries failed, coords still invalid")
+            return windowX := windowY := windowWidth := windowHeight := 0
+        }
+    } catch TargetError {
+        dbgLine("anti-afk: WinGetClientPos threw exception on try " . (retry+1))
         return windowX := windowY := windowWidth := windowHeight := 0
     }
 }
