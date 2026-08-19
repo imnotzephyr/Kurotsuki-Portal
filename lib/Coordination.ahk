@@ -464,7 +464,7 @@ PerformAntiAFK()
     ; If focus was lost during the above...
     if (!WinActive("Roblox") && hwnd) {
         dbgLine("anti-afk: Roblox lost focus, retrying...")
-        WinActivate "ahk_id " hwnd, , , , 2  ; Activate with wait timeout
+        WinActivate "ahk_id " . hwnd  ; AHK v2 proper syntax - no extra params
         Sleep 50
         SendMode "Event"
         SendEvent "{Click " centerX " " centerY " 0}"
