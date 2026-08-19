@@ -428,9 +428,9 @@ SendStingerScreenshot()
 }
 
 ; Clicks in a safe area of the Roblox client to prevent
-; the ~20-minute Roblox idle disconnect. Uses SendMode "Event" (Natro-compatible)
-; which is specifically required for RDP sessions - AHK's default "Input" mode 
-; doesn't route through Remote Desktop properly, causing clicks to be silently dropped.
+; the ~20-minute Roblox idle disconnect. Uses Natro's exact method:
+;   SendEvent "{Click x y 0}" for direct mouse click at coordinates (mode=0 = left-click)
+; This bypasses cursor movement and sends input directly to the target location.
 PerformAntiAFK()
 {
     global LastActivity
@@ -451,28 +451,23 @@ PerformAntiAFK()
     local centerX := windowX +	windowWidth // 2
     local centerY := windowY + windowHeight - 20
     
-    dbgLine("anti-afk firing (RDP mode): hwnd=" . hwnd . " at (" . centerX . "," . centerY . ")")
+    dbgLine("anti-afk firing (Natro mode): hwnd=" . hwnd . " at (" . centerX . "," . centerY . ")")
     
-    ; Use Natro-compatible RDP setup: SendMode Event + visible mouse move
-    SendMode "Event"  ; Required for RDP - "Input" method gets silently dropped
+    ; NATRO METHOD: Direct Click command with coordinates - NO MouseMove needed!
+    SendMode "Event"  ; Required for RDP compatibility
     
-    ; Visible cursor movement (speed=5) - instant moves often don't register through virtual displays
-    MouseMove centerX, centerY, 5
+    ; Use native {Click x y 0} syntax (mode=0 = left-click) instead of Move+LClick
+    SendEvent "{Click " centerX " " centerY " 0}"
     
-    Sleep 100  ; Give RDP compositor time to process cursor position
-    
-    ; Use explicit down/up sequence instead of {LClick} - more reliable through Remote Desktop
-    Send "{LClick down}{LClick up}"
+    Sleep 150  ; Standard delay between clicks (Natro uses 100ms, we use 150ms for RDP safety)
     
     ; If focus was lost during the above...
     if (!WinActive("Roblox") && hwnd) {
         dbgLine("anti-afk: Roblox lost focus, retrying...")
-        WinActivate "ahk_id " hwnd
+        WinActivate "ahk_id " hwnd, , , , 2  ; Activate with wait timeout
         Sleep 50
         SendMode "Event"
-        MouseMove centerX, centerY, 5
-        Sleep 100
-        Send "{LClick down}{LClick up}"
+        SendEvent "{Click " centerX " " centerY " 0}"
     }
     
     dbgLine("anti-afk completed")
