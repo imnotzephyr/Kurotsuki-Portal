@@ -40,6 +40,31 @@ ActivateRoblox() {
     }
 }
 
+; Resizes Roblox window to a standard size for consistent UI behavior.
+; Useful for ensuring screenshots and clicks land at expected coordinates.
+ResizeRoblox(hwnd?) {
+    try {
+        if !IsSet(hwnd)
+            hwnd := GetRobloxHWND()
+        
+        if (!hwnd || hwnd = 0)
+            return 0
+        
+        ; Set Roblox to a standard windowed size (common for macros)
+        ; Adjust these values if you use a different preferred resolution
+        local targetWidth := 1280
+        local targetHeight := 720
+        
+        WinMove(targetWidth, targetHeight, , "ahk_id " . hwnd)  ; Resize to target dimensions
+        Sleep 100  ; Let the window settle after resize
+        
+        return 1
+    }
+    catch TargetError {
+        return 0
+    }
+}
+
 ; Updates global variables windowX, windowY, windowWidth, windowHeight.
 ; Returns 1 on success, 0 if window not found or coords invalid (RDP edge case).
 GetRobloxClientPos(hwnd?) {
