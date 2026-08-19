@@ -50,14 +50,15 @@ ResizeRoblox(hwnd?) {
         if (!hwnd || hwnd = 0)
             return 0
         
-        ; Set Roblox to a standard windowed size (common for macros)
-        ; Adjust these values if you use a different preferred resolution
+        ; Set Roblox to a standard windowed size (1280x720)
         local targetWidth := 1280
         local targetHeight := 720
         
-        WinMove(targetWidth, targetHeight, , "ahk_id " . hwnd)  ; Resize to target dimensions
-        Sleep 100  ; Let the window settle after resize
+        ; AHK v2: WinSetSize( Width, Height [, Win ] )
+        ; Changes only W/H without moving X/Y position  
+        WinSetSize(targetWidth, targetHeight, "ahk_id " . hwnd)
         
+        Sleep 100  ; Let window settle after resize
         return 1
     }
     catch TargetError {
