@@ -453,10 +453,10 @@ PerformAntiAFK()
         centerX := windowX + 640  ; Fallback: assume width ~1280, click at middle
     
     local centerY := windowY + windowHeight - 20
-    if (!windowHeight || windowHeight <= 0)
-        centerY := windowY + 340  ; Fallback: assume height ~720, click near bottom
+    if (!windowHeight || windowHeight <= 0) 
+        centerY := windowY + 340
     
-    dbgLine("anti-afk firing (Natro mode): hwnd=" . hwnd . " at (" . centerX . "," . centerY . ") [window W=" . windowWidth ", H=". windowHeight . "]")
+    dbgLine("anti-afk firing (Natro mode): hwnd=" . hwnd . " at (" . centerX . "," . centerY . ") [W=" . windowWidth . ", H=" . windowHeight . "]")
     
     ; NATRO METHOD: Direct Click command with coordinates - NO MouseMove needed!
     SendMode "Event"  ; Required for RDP compatibility
