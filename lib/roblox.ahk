@@ -85,22 +85,23 @@ GetRobloxClientPos(hwnd?) {
         while (retry < 3 && !success) {
             WinGetClientPos(&windowX, &windowY, &windowWidth, &windowHeight, "ahk_id " . hwnd)
             
-            if (!windowWidth or !windowHeight or windowWidth < 100 or windowHeight < 100) {
+            if (!windowWidth or !windowHeight || windowWidth <= 0 || windowHeight <= 0) {
+                ; Invalid dimensions (e.g., zero or negative), retry again
                 retry += 1
                 Sleep 200
                 continue
             } else {
+                ; Valid positive dimensions found
                 success := True
             }
         }
-        
-        if (!success) {
-            dbgLine("anti-afk: " . retry . " tries failed, coords still invalid")
-            return windowX := windowY := windowWidth := windowHeight := 0
-        }
+
+        ; IMPORTANT: Always return success and usable values, even if retries exhausted.
+        ; This matches Natro's approach: better to click with potentially bad coords than not at all.
+        ; If all retries failed, we still return the latest (possibly zero) values so anti-AFK can proceed.
+        ; The caller will handle any failures from bad coordinates gracefully.
     } catch TargetError {
         dbgLine("anti-afk: WinGetClientPos threw exception on try " . (retry+1))
-        return windowX := windowY := windowWidth := windowHeight := 0
     }
 }
 
