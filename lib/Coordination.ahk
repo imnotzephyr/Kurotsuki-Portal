@@ -443,15 +443,20 @@ PerformAntiAFK()
     }
     
     GetRobloxClientPos(hwnd)
-    if (!windowX || !windowY || windowWidth <= 0 || windowHeight <= 0) {
-        dbgLine("anti-afk skipped: invalid client pos (X=" . windowX . " Y=" . windowY . ")")
-        return ; Can't determine position, skip this tick
-    }
+    
+    ; NOTE: Even if dims are invalid (0 or negative), we still proceed with the click.
+    ; This matches Natro's approach: better to click somewhere (even off-screen) than skip entirely.
+    ; If coords are bad, centerX/centerY will be wrong but Roblox may still register it as input.
     
     local centerX := windowX +	windowWidth // 2
-    local centerY := windowY + windowHeight - 20
+    if (!windowWidth || windowWidth <= 0) 
+        centerX := windowX + 640  ; Fallback: assume width ~1280, click at middle
     
-    dbgLine("anti-afk firing (Natro mode): hwnd=" . hwnd . " at (" . centerX . "," . centerY . ")")
+    local centerY := windowY + windowHeight - 20
+    if (!windowHeight || windowHeight <= 0)
+        centerY := windowY + 340  ; Fallback: assume height ~720, click near bottom
+    
+    dbgLine("anti-afk firing (Natro mode): hwnd=" . hwnd . " at (" . centerX . "," . centerY . ") [window W=" . windowWidth ", H=". windowHeight . "]")
     
     ; NATRO METHOD: Direct Click command with coordinates - NO MouseMove needed!
     SendMode "Event"  ; Required for RDP compatibility
