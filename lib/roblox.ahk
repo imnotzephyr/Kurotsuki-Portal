@@ -54,9 +54,8 @@ ResizeRoblox(hwnd?) {
         local targetWidth := 1280
         local targetHeight := 720
         
-        ; AHK v2: WinSetSize( Width, Height [, Win ] )
-        ; Changes only W/H without moving X/Y position  
-        WinSetSize(targetWidth, targetHeight, "ahk_id " . hwnd)
+        ; AHK v2: WinMove( Width, Height [, Win ] ) - resizes without moving X/Y
+        WinMove(targetWidth, targetHeight,, "ahk_id " . hwnd)
         
         Sleep 100  ; Let window settle after resize
         return 1
