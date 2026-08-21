@@ -50,12 +50,16 @@ ResizeRoblox(hwnd?) {
         if (!hwnd || hwnd = 0)
             return 0
         
-        ; Set Roblox to a standard windowed size (1280x720)
+        ; Set Roblox to a standard windowed size (1280x720)  
         local targetWidth := 1280
         local targetHeight := 720
         
-        ; AHK v2: WinMove( Width, Height [, Win ] ) - resizes without moving X/Y
-        WinMove(targetWidth, targetHeight,, "ahk_id " . hwnd)
+        ; AHK v2: WinMove(Width, Height [, X, Y], hwnd ) - pass raw number directly, NOT "ahk_id" prefix  
+        try { 
+            WinMove(targetWidth, targetHeight,,,, hwnd)  
+        } catch TargetError {
+            return 0  ; Window not found or failed to resize
+        }
         
         Sleep 100  ; Let window settle after resize
         return 1
@@ -64,6 +68,8 @@ ResizeRoblox(hwnd?) {
         return 0
     }
 }
+
+
 
 ; Updates global variables windowX, windowY, windowWidth, windowHeight.
 ; Returns 1 on success, 0 if window not found or coords invalid (RDP edge case).
