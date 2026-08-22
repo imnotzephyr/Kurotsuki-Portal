@@ -452,7 +452,7 @@ PerformAntiAFK()
     if (!windowHeight || windowHeight <= 0) 
         centerY := windowY + 320
     
-    dbgLine("anti-afk firing (Natro 3-step): hwnd=" . hwnd . " at (" . centerX "," . centerY ") [W=" . windowWidth ", H=". windowHeight "]")
+    dbgLine("anti-afk firing (Natro 3-step): hwnd=" . hwnd . " at (" . centerX "," . centerY ") [W=" . windowWidth . ", H=" . windowHeight . "]")
     
     SendMode "Event"
     
