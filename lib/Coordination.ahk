@@ -444,36 +444,45 @@ PerformAntiAFK()
     
     GetRobloxClientPos(hwnd)
     
-    ; NOTE: Even if dims are invalid (0 or negative), we still proceed with the click.
-    ; This matches Natro's approach: better to click somewhere (even off-screen) than skip entirely.
-    ; If coords are bad, centerX/centerY will be wrong but Roblox may still register it as input.
-    
-    local centerX := windowX +	windowWidth // 2
+    local centerX := windowX + windowWidth // 2
     if (!windowWidth || windowWidth <= 0) 
-        centerX := windowX + 640  ; Fallback: assume width ~1280, click at middle
+        centerX := windowX + 640
     
-    local centerY := windowY + windowHeight - 20
+    local centerY := windowY + int(windowHeight * 0.65)  
     if (!windowHeight || windowHeight <= 0) 
-        centerY := windowY + 340
+        centerY := windowY + 320
     
-    dbgLine("anti-afk firing (Natro mode): hwnd=" . hwnd . " at (" . centerX . "," . centerY . ") [W=" . windowWidth . ", H=" . windowHeight . "]")
+    dbgLine("anti-afk firing (Natro 3-step): hwnd=" . hwnd . " at (" . centerX "," . centerY ") [W=" . windowWidth ", H=". windowHeight "]")
     
-    ; NATRO METHOD: Direct Click command with coordinates - NO MouseMove needed!
-    SendMode "Event"  ; Required for RDP compatibility
+    SendMode "Event"
     
-    ; Use native {Click x y 0} syntax (mode=0 = left-click) instead of Move+LClick
-    SendEvent "{Click " centerX " " centerY " 0}"
+    ; === NATRO-STYLE: Multi-step click sequence that triggers tool swing ===  
+    SendEvent "{Click " centerX " " centerY " 0}"  ; Step 1: register position
+    Sleep 75
     
-    Sleep 150  ; Standard delay between clicks (Natro uses 100ms, we use 150ms for RDP safety)
+    dbgLine("[anti-afk] Pressing down...")  
+    SendEvent "{LButton Down}"  ; Step 2: hold (triggers BSS swing)
     
-    ; If focus was lost during the above...
-    if (!WinActive("Roblox") && hwnd) {
-        dbgLine("anti-afk: Roblox lost focus, retrying...")
-        WinActivate "ahk_id " . hwnd  ; AHK v2 proper syntax - no extra params
-        Sleep 50
-        SendMode "Event"
-        SendEvent "{Click " centerX " " centerY " 0}"
+    ifWinActive("ahk_id " . hwnd) {
+        Sleep 40
+        SendEvent "{Click " centerX + 25 " " centerY - 15 " 0}"  ; Slight move during hold  
     }
     
-    dbgLine("anti-afk completed")
+    Sleep 60
+    dbgLine("[anti-afk] Up event")  
+    SendEvent "{LButton Up}"
+    
+    Sleep 150
+    
+    if (!WinActive("Roblox") && hwnd) {
+        dbgLine("anti-afk: lost focus, retrying...")
+        WinActivate "ahk_id " . hwnd
+        Sleep 75
+        SendEvent "{LButton Down}"
+        Sleep 60
+        SendEvent "{LButton Up}"
+    } else {
+        dbgLine("anti-afk completed (Natro 3-step pattern)")  
+    }
 }
+
