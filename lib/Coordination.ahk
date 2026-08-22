@@ -448,7 +448,7 @@ PerformAntiAFK()
     if (!windowWidth || windowWidth <= 0) 
         centerX := windowX + 640
     
-    local centerY := windowY + int(windowHeight * 0.65)  
+    local centerY := windowY + floor(windowHeight * 0.65)  
     if (!windowHeight || windowHeight <= 0) 
         centerY := windowY + 320
     
