@@ -463,7 +463,7 @@ PerformAntiAFK()
     dbgLine("[anti-afk] Pressing down...")  
     SendEvent "{LButton Down}"  ; Step 2: hold (triggers BSS swing)
     
-    ifWinActive("ahk_id " . hwnd) {
+    if (WinActive("ahk_id " . hwnd)) {
         Sleep 40
         SendEvent "{Click " centerX + 25 " " centerY - 15 " 0}"  ; Slight move during hold  
     }
