@@ -13,9 +13,13 @@ buff_characters[7] := Gdip_BitmapFromBase64("iVBORw0KGgoAAAANSUhEUgAAAAQAAAAMCAA
 buff_characters[8] := Gdip_BitmapFromBase64("iVBORw0KGgoAAAANSUhEUgAAAAQAAAAKCAAAAAC2kKDSAAAAAnRSTlMAAHaTzTgAAAA9SURBVHgBATIAzf8BAADzAAAA8wAAAgAAAAABAPMAAAEAAPMAAADzAAAAAAAAAADzAAAAAADzAAABAADzALv5B59oKTe0AAAAAElFTkSuQmCC")
 buff_characters[9] := Gdip_BitmapFromBase64("iVBORw0KGgoAAAANSUhEUgAAAAQAAAAKCAAAAAC2kKDSAAAAAnRSTlMAAHaTzTgAAAA9SURBVHgBATIAzf8BAADzAAAA8wAAAPMAAAAAAPMAAAEAAPMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA87TcBbXcfy3eAAAAAElFTkSuQmCC")
 
-; bitmaps for buff identification
-bitmaps := Map()
-bitmaps.CaseSense := 0
+; bitmaps for buff identification (uses global bitmaps Map defined in images/bitmaps.ahk)
+; Ensure global bitmaps exists before populating local entries  
+if !IsSet(bitmaps) {
+    global bitmaps := Map()
+    bitmaps.CaseSense := 0
+}
+
 bitmaps["pBMHaste"] := Gdip_CreateBitmap(10,1)
 pGraphics := Gdip_GraphicsFromImage(bitmaps["pBMHaste"]), Gdip_GraphicsClear(pGraphics, 0xfff0f0f0), Gdip_DeleteGraphics(pGraphics)
 bitmaps["pBMMelody"] := Gdip_CreateBitmap(3,2)
