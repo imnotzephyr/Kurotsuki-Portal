@@ -19,7 +19,6 @@ if !IsSet(bitmaps) {
     global bitmaps := Map()
     bitmaps.CaseSense := 0
 }
-
 bitmaps["pBMHaste"] := Gdip_CreateBitmap(10,1)
 pGraphics := Gdip_GraphicsFromImage(bitmaps["pBMHaste"]), Gdip_GraphicsClear(pGraphics, 0xfff0f0f0), Gdip_DeleteGraphics(pGraphics)
 bitmaps["pBMMelody"] := Gdip_CreateBitmap(3,2)

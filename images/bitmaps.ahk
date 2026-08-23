@@ -1,6 +1,6 @@
-; Declare the bitmaps Map explicitly for AHK v2 compatibility
-global bitmaps := {}
-
+; Declare the bitmaps Map explicitly for AHK v2 compatibility (must use Map(), not {}!)
+global bitmaps := Map()
+bitmaps.CaseSense := 0
 ; Ensure 'data' Map exists and has beesmas key defined (initialize if missing)
 if !IsSet(data) || !HasProp(data, "beesmas") {  
     global data := { beesmas: false } ; Default to non-beesmas season
