@@ -7,7 +7,7 @@
 #Include ..\images\bitmaps.ahk  ; Contains the bitmaps Map with VBWarning definition
 
 If !(pToken := Gdip_Startup()) {
-    MsgBox "ERROR: Could not initialize GDI+. Code: " pToken
+    MsgBox "ERROR: Could not initialize GDI+. Code: " . pToken
     ExitApp
 }
 
@@ -37,10 +37,10 @@ TestScreenshot(filePath*) {
     Local outFile := ""  
     Local pBitmap := 0
     
-    if (!filePath[1]) {
+    if (filePath[1] == "") {
         ; No argument - use file picker  
         outFile := FileSelect("S", A_ScriptDir "\screenshots\", "*.png;*.jpg;*.bmp")
-        if (outFile == "") {
+        if (outFile = "") {
             MsgBox "No file selected."
             return 0
         }
@@ -48,49 +48,48 @@ TestScreenshot(filePath*) {
         outFile := filePath[1]  
     }
     
-    vsLogLine("[TEST] Loading: " outFile)
+    vsLogLine("[TEST] Loading: " . outFile)
     
     pBitmap := Gdip_LoadImageFromFile(outFile)
     if (!pBitmap) {
-        MsgBox "Error loading image: " outFile
+        MsgBox "Error loading image: " . outFile
         return 0  
     }
     
     ; Get dimensions for log
     Gdip_GetImageDimensions(pBitmap, &w, &h)  
-    vsLogLine("[TEST] Image size: " w "x" h)
+    vsLogLine("[TEST] Image size: " . w . "x" . h)
 
     ; Perform search (mimics production call in functions.ahk line 1241):
     ; warningFound := Gdip_ImageSearch(pBMScreen, bitmaps["VBWarning"], , , , , , 50, 0)
     results := ""
     found := Gdip_ImageSearch(pBitmap, pVBBitmap, results,, 0, 0, 0, 0, 50,, 1)
     
-    vsLogLine("[TEST] Search return code: " found)
+    vsLogLine("[TEST] Search return code: " . found)
     
     if (found > 0 && StrLen(results) > 0) {
         ; Parse result string - typically "x,y" format  
-        SplitPath(results, &firstInstance,,, ",")  ; Get first match
+        ; SplitPath doesn't parse comma-separated values; use StrSplit directly
+        parts := StrSplit(firstInstance := results, ",")
         
-        ; results is comma-separated x,y values for each instance  
-        if InStr(firstInstance, ",") { 
-            parts := StrSplit(firstInstance, ",")
+        if (parts.Length >= 2) { 
             DetectX := parts[1]
             DetectY := parts[2]
-        } else {  ; Fallback handling  
-            var := firstInstance
-            vsLogLine("[WARN] Coordinate parse ambiguous")
+        } else {  
+            vsLogLine("[WARN] Coordinate parse ambiguous: " . firstInstance)
             DetectX := found
+            DetectY := 0
         }
         
-        msg := "VB DETECTED!`n"
-            . "Matches found: " found "`n"
-            . "First instance at: (" DetectX "," DetectY ")" "`n"
-            . "Raw output: " results
+        msg := "VB DETECTED!" . "`n"
+            . "Matches found: " . found . "`n"
+            . "First instance at: (" . DetectX . "," . DetectY . ")" . "`n"
+            . "Raw output: " . results
         
         MsgBox msg
-        vsLogLine("[TEST] ✓ VB FOUND at (" DetectX "," DetectY ")")  
+        vsLogLine("[TEST] ✓ VB FOUND at (" . DetectX . "," . DetectY . ")")  
         
-    } else if (found == 0) {
+    } else if (found = 0) {
         MsgBox "No VB warning icon detected in this screenshot."
         vsLogLine("[TEST] ✗ Not found")
         
@@ -100,10 +99,10 @@ TestScreenshot(filePath*) {
             case -1001: err := "Invalid bitmap"
             case -1002: err := "Variation out of range"
             case -1003: err := "Bad coordinates"
-            default:     err := "Unknown error: " found
+            default:     err := "Unknown error: " . found
         }
-        MsgBox "Detection ERROR:`n" err  
-        vsLogLine("[TEST] ERROR: " err)  
+        MsgBox "Detection ERROR:`n" . err  
+        vsLogLine("[TEST] ERROR: " . err)  
     } else {
         MsgBox "No matches or invalid result."
     }
@@ -122,7 +121,7 @@ vsLogLine(msg) {
 ; Handle command-line args (drag-and-drop support)  
 ParamCount := ParamCount()
 if (ParamCount > 0) {
-    vsLogLine("[TEST] Running with arg: " P1)  
+    vsLogLine("[TEST] Running with arg: " . P1)  
     TestScreenshot([P1])
 } else {
     ; Show intro prompt in interactive mode  
@@ -140,7 +139,7 @@ OnExit(OnScriptExit)
 
 OnScriptExit(*) {
     global pToken
-    if (!pToken = 0)
+    if (pToken != 0)
         Gdip_Shutdown(pToken)
 }
 
