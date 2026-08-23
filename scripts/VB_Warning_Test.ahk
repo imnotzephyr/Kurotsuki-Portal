@@ -33,6 +33,10 @@ vsLogLine("[TEST] VBWarning bitmap loaded successfully")
 
 ; Main test routine
 TestScreenshot(filePath*) {
+    ; Declare function locals to avoid "unassigned variable" warnings
+    Local outFile := ""  
+    Local pBitmap := 0
+    
     if (!filePath[1]) {
         ; No argument - use file picker  
         outFile := FileSelect("S", A_ScriptDir "\screenshots\", "*.png;*.jpg;*.bmp")
