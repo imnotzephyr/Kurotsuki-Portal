@@ -2,7 +2,10 @@
 ; Standalone VB Warning Detector - Test Tool
 ; Usage: Drag-and-drop a screenshot file onto this script, or pass path as argument
 
-; Load GDI+ libraries
+; Suppress warning for functions from included files (AHK v2 static analyzer limitation)
+#Warn : LocalVarNotAssigned : Off
+
+; Load GDI+ libraries (#Include uses external function definitions that aren't visible to static analysis)
 #Include ..\lib\Gdip_All.ahk  
 #Include ..\images\bitmaps.ahk  ; Contains the bitmaps Map with VBWarning definition
 
