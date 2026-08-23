@@ -35,8 +35,8 @@ vsLogLine("[TEST] VBWarning bitmap loaded successfully")
 TestScreenshot(filePath*) {
     if (!filePath[1]) {
         ; No argument - use file picker  
-        FileSelect(outFile, "Select Screenshot", A_ScriptDir "\screenshots\", "*.png *.jpg *.bmp|Image files", 0)
-        if (outFile = "") {
+        outFile := FileSelect("S", A_ScriptDir "\screenshots\", "*.png;*.jpg;*.bmp")
+        if (outFile == "") {
             MsgBox "No file selected."
             return 0
         }
