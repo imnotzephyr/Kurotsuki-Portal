@@ -72,11 +72,10 @@ TestScreenshot(filePath*) {
             parts := StrSplit(firstInstance, ",")
             DetectX := parts[1]
             DetectY := parts[2]
-        } else If IsNumber(found) && parts[1] {  ; Fallback handling
-             var = firstInstance
-             ; Gdip_ImageSearch may return single number if no coords parsed  
-             vsLogLine("[WARN] Coordinate parse ambiguous")
-             DetectX := found  
+        } else {  ; Fallback handling  
+            var := firstInstance
+            vsLogLine("[WARN] Coordinate parse ambiguous")
+            DetectX := found
         }
         
         msg := "VB DETECTED!`n"
@@ -85,19 +84,19 @@ TestScreenshot(filePath*) {
             . "Raw output: " results
         
         MsgBox msg
-        vsLogLine("[TEST] ✓ VB FOUND at (" DetectX "," DetectY ")")
+        vsLogLine("[TEST] ✓ VB FOUND at (" DetectX "," DetectY ")")  
         
     } else if (found == 0) {
         MsgBox "No VB warning icon detected in this screenshot."
-        vsLogLine("[TEST] ✗ Not found")  
+        vsLogLine("[TEST] ✗ Not found")
         
-    } else If (found < -1000) {
+    } else if (found < -1000) {
         ; Error code handling  
         switch(found) {
-            -1001: err := "Invalid bitmap"
-            -1002: err := "Variation out of range"
-            -1003: err := "Bad coordinates"
-            default: err := "Unknown error " found
+            case -1001: err := "Invalid bitmap"
+            case -1002: err := "Variation out of range"
+            case -1003: err := "Bad coordinates"
+            default:     err := "Unknown error: " found
         }
         MsgBox "Detection ERROR:`n" err  
         vsLogLine("[TEST] ERROR: " err)  
