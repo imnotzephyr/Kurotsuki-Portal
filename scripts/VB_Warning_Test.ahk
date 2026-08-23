@@ -132,9 +132,14 @@ if (ParamCount > 0) {
 }
 
 ; Cleanup on exit  
-OnExit(*) => { 
-    Gdip_Shutdown(pToken)
-    ExitApp() 
+OnExit(OnScriptExit)
+
+OnScriptExit(*) {
+    global pToken
+    if (!pToken = 0)
+        Gdip_Shutdown(pToken)
 }
 
-ExitApp
+Return
+
+ExitApp()
