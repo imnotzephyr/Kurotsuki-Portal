@@ -120,9 +120,8 @@ vsLogLine(msg) {
 }
 
 ; Handle command-line args (drag-and-drop support)  
-ParamCount := ParamCount()
-if (ParamCount > 0) {
-    firstArg := Param(1)  ; Get first command-line parameter
+if (A_Args.Length > 0) {
+    firstArg := A_Args[1]  ; Get first command-line parameter from built-in A_Args array
     vsLogLine("[TEST] Running with arg: " . firstArg)  
     TestScreenshot([firstArg])
 } else {
