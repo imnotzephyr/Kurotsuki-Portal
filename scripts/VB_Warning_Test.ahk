@@ -122,8 +122,9 @@ vsLogLine(msg) {
 ; Handle command-line args (drag-and-drop support)  
 ParamCount := ParamCount()
 if (ParamCount > 0) {
-    vsLogLine("[TEST] Running with arg: " . P1)  
-    TestScreenshot([P1])
+    firstArg := Param(1)  ; Get first command-line parameter
+    vsLogLine("[TEST] Running with arg: " . firstArg)  
+    TestScreenshot([firstArg])
 } else {
     ; Show intro prompt in interactive mode  
     MsgBox "=== VB Warning Detector ===`n" .
