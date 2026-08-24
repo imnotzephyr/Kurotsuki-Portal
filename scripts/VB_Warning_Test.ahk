@@ -4,7 +4,8 @@
 
 ; Load GDI+ libraries
 #Include ..\lib\Gdip_All.ahk  
-#Include ..\images\bitmaps.ahk  ; Contains the bitmaps Map with VBWarning definition
+#include ..\images\bitmaps.ahk  ; Contains the bitmaps Map with VBWarning definition
+#include ..\lib\Gdip_ImageSearch.ahk  ; Image search function
 
 If !(pToken := Gdip_Startup()) {
     MsgBox "ERROR: Could not initialize GDI+. Code: " . pToken
@@ -50,7 +51,7 @@ TestScreenshot(filePath*) {
     
     vsLogLine("[TEST] Loading: " . outFile)
     
-    pBitmap := Gdip_LoadImageFromFile(outFile)
+    pBitmap := Gdip_CreateBitmapFromFile(outFile)
     if (!pBitmap) {
         MsgBox "Error loading image: " . outFile
         return 0  
