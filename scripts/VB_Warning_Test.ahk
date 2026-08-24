@@ -145,5 +145,3 @@ OnScriptExit(*) {
 }
 
 Return
-
-ExitApp()
