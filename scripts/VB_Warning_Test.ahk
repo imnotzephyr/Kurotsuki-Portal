@@ -2,10 +2,25 @@
 ; Standalone VB Warning Detector - Test Tool  
 ; Usage: Drag-and-drop a screenshot file onto this script, or pass path as argument
 
-; Load GDI+ libraries
-#Include ..\lib\Gdip_All.ahk  
-#include ..\images\bitmaps.ahk  ; Contains the bitmaps Map with VBWarning definition
-#include ..\lib\Gdip_ImageSearch.ahk  ; Image search function
+; Load GDI+ libraries  
+#Include ..\lib\Gdip_All.ahk  ; Core GDI+ functions (Gdip_Startup, Gdip_LoadImageFromFile, etc.)
+#Include ..\images\bitmaps.ahk  ; Contains the bitmaps Map with VBWarning definition  
+#Include ..\lib\Gdip_ImageSearch.ahk  ; Image search function (Gdip_ImageSearch)
+
+; Verify includes loaded successfully
+if !IsSet(Gdip_Startup) || !IsSet(Gdip_LoadImageFromFile) {
+    MsgBox "ERROR: Could not load GDI+ libraries.`n`n" 
+         . "Missing files:`n- lib\Gdip_All.ahk`n- images\bitmaps.ahk`n- lib\Gdip_ImageSearch.ahk`n`n" 
+         . "Make sure you are running this from the scripts/ folder."
+    ExitApp
+}
+
+; Verify bitmaps Map exists and has VBWarning  
+if !IsSet(bitmaps) || !bitmaps.HasKey("VBWarning") {
+    MsgBox "ERROR: Could not load VBWarning bitmap.`n`n" 
+         . "Issue in images\bitmaps.ahk or #include statement."
+    ExitApp
+}
 
 If !(pToken := Gdip_Startup()) {
     MsgBox "ERROR: Could not initialize GDI+. Code: " . pToken
