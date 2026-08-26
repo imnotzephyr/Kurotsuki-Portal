@@ -2,12 +2,12 @@
 ; Standalone VB Warning Detector - Test Tool  
 ; Usage: Drag-and-drop a screenshot file onto this script, or pass path as argument
 
-; Load GDI+ libraries  
-#Include ..\lib\Gdip_All.ahk  ; Core GDI+ functions (Gdip_Startup, Gdip_LoadImageFromFile, etc.)
-#Include ..\images\bitmaps.ahk  ; Contains the bitmaps Map with VBWarning definition  
-#Include ..\lib\Gdip_ImageSearch.ahk  ; Image search function (Gdip_ImageSearch)
+; Load GDI+ libraries (cross-platform compatible paths)  
+#Include ../lib/Gdip_All.ahk  ; Core GDI+ functions
+#Include ../images/bitmaps.ahk  ; Contains bitmaps Map with VBWarning definition
+#Include ../lib/Gdip_ImageSearch.ahk  ; Image search function
 
-; Verify includes loaded successfully
+; Verify includes loaded successfully (fails loudly if file system casing/path differs)
 if !IsSet(Gdip_Startup) || !IsSet(Gdip_LoadImageFromFile) {
     MsgBox "ERROR: Could not load GDI+ libraries.`n`n" 
          . "Missing files:`n- lib\Gdip_All.ahk`n- images\bitmaps.ahk`n- lib\Gdip_ImageSearch.ahk`n`n" 
