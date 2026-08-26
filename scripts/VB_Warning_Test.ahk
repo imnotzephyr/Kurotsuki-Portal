@@ -2,27 +2,30 @@
 ; Standalone VB Warning Detector - Test Tool  
 ; Usage: Drag-and-drop a screenshot file onto this script, or pass path as argument
 
-; Load GDI+ libraries (relative paths)  
+; Load GDI+ libraries (corrected paths - go UP from scripts/ to repo root)  
 #Include ..\lib\Gdip_All.ahk  ; Core GDI+ functions
 #Include ..\images\bitmaps.ahk  ; Contains bitmaps Map with VBWarning definition
 #Include ..\lib\Gdip_ImageSearch.ahk  ; Image search function
 
 ; Verify includes loaded successfully  
 if !IsSet(Gdip_Startup) || !IsSet(Gdip_LoadImageFromFile) {
+    baseDir := SubStr(A_ScriptDir, 1, InStr(A_ScriptDir, "\scripts")-1)  ; Remove trailing \scripts to get repo root
     MsgBox "ERROR: Could not load GDI+ libraries.`n`n" 
-         . "Script Dir:       " A_ScriptDir "`n"  
-         . "Expected Lib:     " A_ScriptDir "\lib\Gdip_All.ahk`n"
-         . "Expected Images:  " A_ScriptDir "\images\bitmaps.ahk`n" 
-         . "Expected Search:  " A_ScriptDir "\lib\Gdip_ImageSearch.ahk`n`n" 
+         . "Script Dir:    " A_ScriptDir "`n"  
+         . "Repo Root:     " baseDir "`n`n"
+         . "Expected Lib:      " baseDir "\lib\Gdip_All.ahk`n" 
+         . "Expected Images:   " baseDir "\images\bitmaps.ahk`n" 
+         . "Expected Search:   " baseDir "\lib\Gdip_ImageSearch.ahk`n`n" 
          . "Check if these files exist on your system."
     ExitApp
 }
 
 ; Verify bitmaps Map exists and has VBWarning  
 if !IsSet(bitmaps) || !bitmaps.HasKey("VBWarning") {
+    baseDir := SubStr(A_ScriptDir, 1, InStr(A_ScriptDir, "\scripts")-1)
     MsgBox "ERROR: Could not load VBWarning bitmap.`n`n" 
-         . "Script Dir:       " A_ScriptDir "`n" 
-         . "Image File Path:  " A_ScriptDir "\images\bitmaps.ahk`n`n"  
+         . "Script Dir:    " A_ScriptDir "`n" 
+         . "Image Path:    " baseDir "\images\bitmaps.ahk`n`n"  
          . "File exists but VBWarning key missing or corrupted."
     ExitApp
 }
