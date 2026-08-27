@@ -23,10 +23,18 @@ if !IsSet(Gdip_Startup) || !IsSet(Gdip_LoadImageFromFile) {
 ; Verify bitmaps Map exists and has VBWarning  
 if !IsSet(bitmaps) || !bitmaps.HasKey("VBWarning") {
     baseDir := SubStr(A_ScriptDir, 1, InStr(A_ScriptDir, "\scripts")-1)
+    
+    ; Diagnose exact failure mode  
+    missingMap   := !IsSet(bitmaps)
+    missingKey   := IsSet(bitmaps) && !bitmaps.HasKey("VBWarning")
+    
     MsgBox "ERROR: Could not load VBWarning bitmap.`n`n" 
-         . "Script Dir:    " A_ScriptDir "`n" 
-         . "Image Path:    " baseDir "\images\bitmaps.ahk`n`n"  
-         . "File exists but VBWarning key missing or corrupted."
+         . "Script Dir:       " A_ScriptDir "`n" 
+         . "Image Path:       " baseDir "\images\bitmaps.ahk`n`n"  
+         . "Diagnosis:`n"
+         . "  • bitmaps Map created: " (missingMap ? "NO (file may not have included)" : "YES") "`n" 
+         . "  • VBWarning key found: " (missingKey ? "NO (Base64 string corrupted or syntax error in bitmaps.ahk line ~64)" : "YES") "`n`n"
+         . "Check images\bitmaps.ahk around line 64 for VBWarning definition."
     ExitApp
 }
 
