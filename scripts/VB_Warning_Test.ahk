@@ -9,32 +9,26 @@
 
 ; Verify includes loaded successfully  
 if !IsSet(Gdip_Startup) || !IsSet(Gdip_LoadImageFromFile) {
-    baseDir := SubStr(A_ScriptDir, 1, InStr(A_ScriptDir, "\scripts")-1)  ; Remove trailing \scripts to get repo root
     MsgBox "ERROR: Could not load GDI+ libraries.`n`n" 
-         . "Script Dir:    " A_ScriptDir "`n"  
-         . "Repo Root:     " baseDir "`n`n"
-         . "Expected Lib:      " baseDir "\lib\Gdip_All.ahk`n" 
-         . "Expected Images:   " baseDir "\images\bitmaps.ahk`n" 
-         . "Expected Search:   " baseDir "\lib\Gdip_ImageSearch.ahk`n`n" 
-         . "Check if these files exist on your system."
+         . "Script Location:   " A_ScriptDir "`n`n" 
+         . "This error means one of these include directives failed:`n" 
+         . "  • #Include ..\lib\Gdip_All.ahk`n" 
+         . "  • #Include ..\images\bitmaps.ahk  `n"
+         . "  • #Include ..\lib\Gdip_ImageSearch.ahk`n`n" 
+         . "Verify that scripts/, lib/, and images/ folders exist at the same level.`n" 
+         . "If paths are correct, check for special characters in folder names (parentheses, etc.)."
     ExitApp
 }
 
 ; Verify bitmaps Map exists and has VBWarning  
 if !IsSet(bitmaps) || !bitmaps.HasKey("VBWarning") {
-    baseDir := SubStr(A_ScriptDir, 1, InStr(A_ScriptDir, "\scripts")-1)
-    
-    ; Diagnose exact failure mode  
-    missingMap   := !IsSet(bitmaps)
-    missingKey   := IsSet(bitmaps) && !bitmaps.HasKey("VBWarning")
-    
     MsgBox "ERROR: Could not load VBWarning bitmap.`n`n" 
-         . "Script Dir:       " A_ScriptDir "`n" 
-         . "Image Path:       " baseDir "\images\bitmaps.ahk`n`n"  
-         . "Diagnosis:`n"
-         . "  • bitmaps Map created: " (missingMap ? "NO (file may not have included)" : "YES") "`n" 
-         . "  • VBWarning key found: " (missingKey ? "NO (Base64 string corrupted or syntax error in bitmaps.ahk line ~64)" : "YES") "`n`n"
-         . "Check images\bitmaps.ahk around line 64 for VBWarning definition."
+         . "The images\bitmaps.ahk file did not load correctly.`n`n" 
+         . "Check lines around 64 in images\bitmaps.ahk for the VBWarning definition:`n"
+         . '    bitmaps["VBWarning"] := Gdip_BitmapFromBase64("...")' "`n`n"
+         . "Common issues on Windows:`n" 
+         . "  • Corrupted Base64 string (truncated or extra characters)`n`n" 
+         . "  • Malformed #Include directive in this file (line 7)"
     ExitApp
 }
 
