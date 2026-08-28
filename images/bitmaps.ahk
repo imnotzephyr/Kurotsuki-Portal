@@ -61,7 +61,7 @@ bitmaps["TadaViciousDead"] := Gdip_BitmapFromBase64("iVBORw0KGgoAAAANSUhEUgAAADs
 ; Field detection removed -- ViciousSpawnLocation uses the warning icon to
 ; detect VB notifications and reads the field name from the caller's context.
 ; Old field-specific bitmaps (pepper/mountain/cactus/rose/spider/clover) deleted.
-        bitmaps["VBWarning"] := Gdip_BitmapFromBase64("iVBORw0KGgoAAAANSUhEUgAAAAMAAAALCAIAAAA1GaCFAAAAXTSURBVBhXYz650OnDN87ZNTrMCtLC249/FOBhYdT/z8DAyMTIwMLKxsjiZsF38+EPbyt+Jj0VrnhvYU1FTmZ+Xv6GOc/+/fvPpKvCJSFMaavMAQDqsxcrS51yCwAAAP//DgBq82bT73AAAAABJRU5ErkJggg==")
+        bitmaps["VBWarning"] := Gdip_BitmapFromBase64("iVBORw0KGgoAAAANSUhEUgAAAAMAAAALCAIAAAA1GaCFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABaSURBVBhXYz5Y0OnDN87ZNTrMCtLC249/FOBhYfr/nwEIgCQTiAYDrCxGRhDFyMTA4mbBd/PhD28rfiY9Fa54b2FNRU5mfl7+hjnP/v37z6SrwiUhzKqrzAWAhF1RQAAAABJRU5ErkJggg==")
 
 
 
