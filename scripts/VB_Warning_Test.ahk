@@ -2,7 +2,7 @@
 ; Standalone VB Warning Detector - Test Tool  
 ; Usage: Drag-and-drop a screenshot file onto this script, or pass path as argument
 
-; Load GDI+ libraries (corrected paths - go UP from scripts/ to repo root)  
+; Load GDI+ libraries (standard relative paths)  
 #Include ..\lib\Gdip_All.ahk  ; Core GDI+ functions
 #Include ..\images\bitmaps.ahk  ; Contains bitmaps Map with VBWarning definition
 #Include ..\lib\Gdip_ImageSearch.ahk  ; Image search function
@@ -12,11 +12,10 @@ if !IsSet(Gdip_Startup) || !IsSet(Gdip_LoadImageFromFile) {
     MsgBox "ERROR: Could not load GDI+ libraries.`n`n" 
          . "Script Location:   " A_ScriptDir "`n`n" 
          . "This error means one of these include directives failed:`n" 
-         . "  • #Include ..\lib\Gdip_All.ahk`n" 
-         . "  • #Include ..\images\bitmaps.ahk  `n"
-         . "  • #Include ..\lib\Gdip_ImageSearch.ahk`n`n" 
-         . "Verify that scripts/, lib/, and images/ folders exist at the same level.`n" 
-         . "If paths are correct, check for special characters in folder names (parentheses, etc.)."
+         . "  • #Include " . A_ScriptDir . "\..\lib\Gdip_All.ahk`n" 
+         . "  • #Include " . A_ScriptDir . "\..\images\bitmaps.ahk  `n"
+         . "  • #Include " . A_ScriptDir . "\..\lib\Gdip_ImageSearch.ahk`n`n" 
+         . "Check if these files physically exist on your system."
     ExitApp
 }
 
