@@ -156,13 +156,30 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
         currentLink := link
         joinAttempts := 0
         loop {
+            ; Ensure Roblox is open before attempting to run link
+            if !WinExist("Roblox ahk_exe RobloxPlayerBeta.exe") && !WinExist("Connecting to Roblox") {
+                PlayerStatus("Roblox not found. Attempting to launch...", "0xff5e00", , false, , false)
+                try Run "https://www.roblox.com/games/1537690962/Bee-Swarm-Simulator"
+                Sleep 2000
+            }
+            
             Run link
             if (GameLoaded() = true)
                 break
             joinAttempts++
             if (joinAttempts >= 18) {
-                PlayerStatus("Failed to load server (link) after retries, skipping...", "0xff0000", , false, , false)
-                return
+                PlayerStatus("Failed to load server (link) after " joinAttempts " retry attempts. Roblox may be unresponsive or account may have issues.", "0xff0000", , false, , false)
+                
+                ; Final attempt: force-open Roblox login page directly  
+                PlayerStatus("Final fallback: Opening Roblox web link manually...", "0xff5e00")
+                run "https://www.roblox.com/games/1537690962/Bee-Swarm-Simulator"
+                Sleep 10000
+                
+                if (!GameLoaded() || !WinExist("Roblox ahk_exe RobloxPlayerBeta.exe")) {
+                    PlayerStatus("Critical: Could not load game even with fallback. Check Roblox installation and account status.", "0xff0000", , true, , false)
+                    return
+                } else break
+                
             }
             Sleep 5000
         }
