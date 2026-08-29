@@ -63,6 +63,8 @@ bitmaps["TadaViciousDead"] := Gdip_BitmapFromBase64("iVBORw0KGgoAAAANSUhEUgAAADs
 ; Old field-specific bitmaps (pepper/mountain/cactus/rose/spider/clover) deleted.
         bitmaps["VBWarning"] := Gdip_BitmapFromBase64("iVBORw0KGgoAAAANSUhEUgAAAAMAAAALCAIAAAA1GaCFAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABaSURBVBhXYz5Y0OnDN87ZNTrMCtLC249/FOBhYfr/nwEIgCQTiAYDrCxGRhDFyMTA4mbBd/PhD28rfiY9Fa54b2FNRU5mfl7+hjnP/v37z6SrwiUhzKqrzAWAhF1RQAAAABJRU5ErkJggg==")
 
+        bitmaps["ViciousDefeated"] := Gdip_BitmapFromBase64("iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAIAAADZSiLoAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAnSURBVBhXY37gHmv5/KvPf96mf69e6SnI8nCwM/3/+5eNhUVPQRYA0DcLw4JEYEgAAAAASUVORK5CYII=")
+
 
 
 
