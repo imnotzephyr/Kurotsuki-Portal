@@ -385,15 +385,9 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
 
 ; Main: drain Searcher VB-alert queue (join alerted server, multi-Main ready, kill) then solo-hunt random servers.
 Start_Main() {
-    global MainCount, MainSoloHunt, AntiAFKInterval
+    global MainCount, MainSoloHunt
     waitMsgTime := 0
-    lastAFK := nowUnix()
     loop {
-        ; Anti-AFK check for main hunt loop
-        if (nowUnix() - lastAFK >= AntiAFKInterval) {
-            PerformAntiAFK()
-            lastAFK := nowUnix()
-        }
         ; Priority 1: Searcher VB alerts (coordMsgID = the Searcher alert, so we reply "ready" + later "left" to it)
         queue := GetSearcherQueue()
         for item in queue {
@@ -422,15 +416,8 @@ Start_Main() {
 
 ; Searcher: drain Passive night-alert queue (join VIP, sweep, alert Main, reply "done") then Hybrid solo / Listener sleep.
 Start_Searcher() {
-    global PassiveMode, currentAlertMsgID, AntiAFKInterval
-    lastAFK := nowUnix()
+    global PassiveMode, currentAlertMsgID
     loop {
-        ; Anti-AFK check for searcher hunt loop
-        if (nowUnix() - lastAFK >= AntiAFKInterval) {
-            PerformAntiAFK()
-            lastAFK := nowUnix()
-        }
-
         ; Priority 1: Passive night alerts -> join VIP (signals "joined" so Passive leaves), sweep, on VB-found alert Mains + wait for >=1 ready, leave (free slot), wait for all Mains to leave, then "done" so Passive rejoins.
         queue := GetPassiveQueue()
         for item in queue {
