@@ -156,13 +156,6 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
         currentLink := link
         joinAttempts := 0
         loop {
-            ; Ensure Roblox is open before attempting to run link
-            if !WinExist("Roblox ahk_exe RobloxPlayerBeta.exe") && !WinExist("Connecting to Roblox") {
-                PlayerStatus("Roblox not found. Attempting to launch...", "0xff5e00", , false, , false)
-                try Run "https://www.roblox.com/games/1537690962/Bee-Swarm-Simulator"
-                Sleep 2000
-            }
-            
             Run link
             if (GameLoaded() = true)
                 break
