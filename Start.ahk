@@ -151,30 +151,30 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
     currentAlertMsgID := ""
     leaveServer()
 
-    ; Join: explicit link (coordination: Searcher alert / Passive alert) -> deeplink with retry-on-load-failure (~90s budget). No link (idle solo) -> hop a public server via joinrandomserver. Passive is the only VIP-only account (see Start_Passive -> LoadVIPServer).
+    ; Join: explicit link (coordination: Searcher alert / Passive alert).
+    ; Uses the EXACT same join flow as Passive's LoadVIPServer: single Run(deeplink),
+    ; then poll the full screen for ground/nightground — no GameLoaded(), no web-URL fallback.
     if IsSet(link) && link != "" {
         currentLink := link
-        joinAttempts := 0
-        loop {
-            Run link
-            if (GameLoaded() = true)
+        normalized := NormalizeVIPLink(link)
+        Run normalized
+        PlayerStatus("Joining alerted server...", 0, , false, , false)
+        loaded := 0
+        loop 30 {
+            Sleep(1000)
+            pBMArea := Gdip_BitmapFromScreen()
+            if (Gdip_ImageSearch(pBMArea, bitmaps["ground"], , , , , , 6) = 1
+                || Gdip_ImageSearch(pBMArea, bitmaps["nightground"], , , , , , 6) = 1) {
+                PlayerStatus("Loaded (ground visible)", 0x00a838, , false, , false)
+                loaded := 1
+                Gdip_DisposeImage(pBMArea)
                 break
-            joinAttempts++
-            if (joinAttempts >= 18) {
-                PlayerStatus("Failed to load server (link) after " joinAttempts " retry attempts. Roblox may be unresponsive or account may have issues.", "0xff0000", , false, , false)
-                
-                ; Final attempt: force-open Roblox login page directly  
-                PlayerStatus("Final fallback: Opening Roblox web link manually...", "0xff5e00")
-                run "https://www.roblox.com/games/1537690962/Bee-Swarm-Simulator"
-                Sleep 10000
-                
-                if (!GameLoaded() || !WinExist("Roblox ahk_exe RobloxPlayerBeta.exe")) {
-                    PlayerStatus("Critical: Could not load game even with fallback. Check Roblox installation and account status.", "0xff0000", , true, , false)
-                    return
-                } else break
-                
             }
-            Sleep 5000
+            Gdip_DisposeImage(pBMArea)
+        }
+        if !loaded {
+            PlayerStatus("Join timed out — Roblox " (GetRobloxHWND() ? "found (join/detection issue)" : "NOT found (deeplink did not launch Roblox)"), 0xff5e00, , false, , false)
+            return
         }
     } else {
         currentLink := joinrandomserver()
