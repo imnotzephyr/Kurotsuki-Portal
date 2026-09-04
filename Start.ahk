@@ -180,7 +180,11 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
                 PlayerStatus("No ground/nightground bitmaps loaded — cannot confirm join. Check images\bitmaps.ahk.", 0xff0000, , false, , false)
                 break
             }
-            pBMArea := Gdip_BitmapFromScreen()
+            pBMArea := Gdip_BitmapFromScreen(windowX "|" windowY "|" windowWidth "|" windowHeight)
+            ; null/failed capture (bad RDP metrics, -1/-2) → skip this tick instead of
+            ; throwing 0x5 when Gdip_ImageSearch measures the empty haystack
+            if (pBMArea = "" || pBMArea <= 0)
+                continue
             if ((bitmaps.Has("ground") && Gdip_ImageSearch(pBMArea, bitmaps["ground"], , , , , , 6) = 1)
                 || (bitmaps.Has("nightground") && Gdip_ImageSearch(pBMArea, bitmaps["nightground"], , , , , , 6) = 1)) {
                 PlayerStatus("Loaded (ground visible)", 0x00a838, , false, , false)
