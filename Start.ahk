@@ -173,9 +173,16 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
         loaded := 0
         loop 30 {
             Sleep(1000)
+            ; A key missing from bitmaps (corrupt/empty Base64) is a falsy pointer that
+            ; still passes Gdip_ImageSearch's && guard — guard the needle here so it
+            ; reports "no ground bitmaps" instead of 0x5 in GdipGetImageWidth.
+            if !bitmaps.Has("ground") && !bitmaps.Has("nightground") {
+                PlayerStatus("No ground/nightground bitmaps loaded — cannot confirm join. Check images\bitmaps.ahk.", 0xff0000, , false, , false)
+                break
+            }
             pBMArea := Gdip_BitmapFromScreen()
-            if (Gdip_ImageSearch(pBMArea, bitmaps["ground"], , , , , , 6) = 1
-                || Gdip_ImageSearch(pBMArea, bitmaps["nightground"], , , , , , 6) = 1) {
+            if ((bitmaps.Has("ground") && Gdip_ImageSearch(pBMArea, bitmaps["ground"], , , , , , 6) = 1)
+                || (bitmaps.Has("nightground") && Gdip_ImageSearch(pBMArea, bitmaps["nightground"], , , , , , 6) = 1)) {
                 PlayerStatus("Loaded (ground visible)", 0x00a838, , false, , false)
                 loaded := 1
                 Gdip_DisposeImage(pBMArea)
