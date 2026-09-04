@@ -75,7 +75,9 @@ Gdip_ImageSearch(pBitmapHaystack,pBitmapNeedle,&OutputList:=""
 ,SearchDirection:=1,Instances:=1,LineDelim:="`n",CoordDelim:=",") {
 
     ; Some validations that can be done before proceeding any further
-    If !( pBitmapHaystack && pBitmapNeedle )
+    ; Failed captures return 0/-1/-2, which still pass AHK boolean && (true = nonzero
+    ; value) and would crash in Gdip_GetImageDimensions with 0x5 (ACCESS_DENIED).
+    If !( (pBitmapHaystack > 0) && (pBitmapNeedle > 0) )
         Return -1001
     If !( ( Variation >= 0 ) && ( Variation <= 255) )
         return -1002
