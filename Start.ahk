@@ -159,6 +159,17 @@ HuntServer(role, link?, coordMsgID?, targetField?) {
         normalized := NormalizeVIPLink(link)
         Run normalized
         PlayerStatus("Joining alerted server...", 0, , false, , false)
+        ; Stage 1 (same as GameLoaded): wait for window, focus it, size it, set window globals
+        loop RobloxOpenTime {
+            if GetRobloxHWND() {
+                ActivateRoblox()
+                WinMaximize(GetRobloxHWND())
+                ResizeRoblox()
+                break
+            }
+            Sleep 1000
+        }
+        GetRobloxClientPos()
         loaded := 0
         loop 30 {
             Sleep(1000)
