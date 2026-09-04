@@ -107,7 +107,6 @@ GetRobloxClientPos(hwnd?) {
         ; The caller will handle any failures from bad coordinates gracefully.
         return (windowWidth > 0 && windowHeight > 0) ? 1 : 0
     } catch TargetError {
-        dbgLine("anti-afk: WinGetClientPos threw exception on try " . (retry+1))
         return 0
     }
 }
